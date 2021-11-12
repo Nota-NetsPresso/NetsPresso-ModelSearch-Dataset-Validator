@@ -194,6 +194,9 @@ After validate data, make the '.zip' file like below.
 ![windows](https://user-images.githubusercontent.com/45225793/141430930-361439f0-5bb6-48ec-a86b-149c6a182527.gif)
 
 #### Mac and Linux
+```
+zip -r {Dataset zip file name}.zip {Dataset diretory path} -x ".*" -x "__MACOSX"
+```
 ![mac](https://user-images.githubusercontent.com/45225793/141430922-9a765546-1cea-4c6f-b6e2-ad391b49c735.gif)
 
 Compare your '.zip' file with the images below.
