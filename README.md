@@ -1,4 +1,4 @@
-# Confirm your dataset structure to use NetsPresso
+# Validate your dataset structure to use NetsPresso
 This repository can be used to validate dataset structure to use NetsPresso.
 
 ## How to use
