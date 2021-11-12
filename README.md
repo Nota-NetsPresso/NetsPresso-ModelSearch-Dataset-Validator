@@ -1,8 +1,8 @@
 # Confirm your dataset structure to use NetsPresso
-This repository can be used to confirm your dataset structure to use NetsPresso.
+This repository can be used to validate dataset structure to use NetsPresso.
 
 ## How to use
-Write code below on your terminal with these configurations. If there is no problem with your dataset, it will end normally without message, and if there is a problem, an error message will be printed on your terminal. If you can't pass validation, check error message.
+Run the code sample below to validate if the data is ready-to-use. If you do not get any error message, you are all set! If error occurs, please refer to the error message to resolve the issue.
 - dir_path: Root directory path of your dataset
 - format: Format of your dataset
 - num_classes: Number of classes in your dataset
@@ -28,7 +28,7 @@ NetsPresso supports YOLO, COCO, and VOC formats for object detection tasks. (YOL
 There are labeling tools, such as [CVAT][cvatlink] and [labelimg][labelimglink] support these annotation formats.
 
 ### Prepare dataset yaml file
-Regardless of the dataset format, .yaml file containing information about the class name and number of classes is needed.
+Regardless of the dataset format, ".yaml" file containing information about the class name and number of classes is needed.
 
 #### Yaml file example
 ```
@@ -81,7 +81,7 @@ A sample zip file "example_datasets/yolo.zip" is in this repository.
 ```
 
 ### Dataset file example for YOLO format
-<p align="center"><img src="https://user-images.githubusercontent.com/45225793/128144229-a6568086-12bf-4db4-98a0-ef269b6117d4.png"></p>
+![sample](https://user-images.githubusercontent.com/45225793/141430419-9c94f0ba-d08f-4d73-83c1-78947cbdae84.png)
 <p align="center"><img src="https://user-images.githubusercontent.com/45225793/128144814-3f613edf-3a31-4d88-878d-45ac01ca08a3.png"></p>
 
 - One row per object
@@ -127,7 +127,7 @@ A sample zip file "example_datasets/coco.zip" is in this repository.
 └── dataset.yaml
 ```
 
-If supercategory is in the ".json" label, it have to be written in "data.yaml" file too. Please see example below.
+If supercategory is in the ".json" file, it have to be written in "data.yaml" file too. Please see example below.
 
 ```
     "categories": [
@@ -188,13 +188,15 @@ A sample zip file "example_datasets/voc.zip" is in this repository.
 ```
 
 ## Make .zip file with dataset
-After validate data, make the ".zip" file like below.
+After validate data, make the '.zip' file like below.
 
 #### Windows
+![windows](https://user-images.githubusercontent.com/45225793/141430930-361439f0-5bb6-48ec-a86b-149c6a182527.gif)
 
 #### Mac and Linux
+![mac](https://user-images.githubusercontent.com/45225793/141430922-9a765546-1cea-4c6f-b6e2-ad391b49c735.gif)
 
-Compare your ".zip" file with the images below.
+Compare your '.zip' file with the images below.
 
 #### Correct case
 
