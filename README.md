@@ -63,9 +63,9 @@ A sample zip file "example_datasets/yolo.zip" is in this repository.
 │       ├── {labels same structure as images}
 │       ├── example1.txt
 │       └── example2.txt
-│   │   └── sub_dir
-│   │       ├── example_3.txt
-│   │       └── example_4.txt
+│       └── sub_dir
+│           ├── example_3.txt
+│           └── example_4.txt
 ├── val
 │   ├── images
 │   │   └── {images or directories}
@@ -170,9 +170,9 @@ A sample zip file "example_datasets/voc.zip" is in this repository.
 │       ├── {labels same structure as images}
 │       ├── example_1.xml
 │       └── example_2.xml
-│   │   └── sub_dir
-│   │       ├── example_3.xml
-│   │       └── example_4.xml
+│       └── sub_dir
+│           ├── example_3.xml
+│           └── example_4.xml
 ├── val
 │   ├── images
 │   │   └── {images or directories}
