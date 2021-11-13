@@ -46,7 +46,7 @@ nc: 7
 ### [YOLO] Dataset structure example
 YOLO format has one '.txt' file per image with the same file name. If there is no object in the image file, no '.txt' file is required for the image. Make sure that every '.txt' file requires a corresponding image file.
 
-For training, a "train" directory and at least one of "val" and "test" directories must exist in the dataset. A nested directory is also allowed.
+For training, a "train" directory and at least one of "val" and "test" directories must exist in the dataset. A nested directory under images or labels is also allowed.
 
 A sample zip file "example_datasets/yolo.zip" is in this repository.
 ```
@@ -95,7 +95,7 @@ Please refer to the official [COCO Data format][cocoformat] for COCO label forma
 
 COCO format has all images in {images} folder and a single '.json' file with annotations in {labels} folder. If you split data into multiple sets, each set should have its own directory and a '.json' file.
 
-For training, a "train" directory and at least one of "val" and "test" directories must exist in the dataset. A nested directory is also allowed.
+For training, a "train" directory and at least one of "val" and "test" directories must exist in the dataset. A nested directory under images or labels is also allowed.
 
 A sample zip file "example_datasets/coco.zip" is in this repository.
 ```
@@ -153,7 +153,7 @@ If supercategory is in the ".json" file, it have to be written in "data.yaml" fi
 VOC format has one '.xml' file per image with the same file name. If there is no object in an image, no '.xml' file is required for the image. Make sure that every '.txt' file requires a corresponding image file.
 Please refer to the official [VOC Data format][vocformat] for VOC label format.
 
-For training, all "train", "val", "test" directories must exist in the dataset. A nested directory is also allowed.
+For training, all "train", "val", "test" directories must exist in the dataset. A nested directory under images or labels is also allowed.
 
 A sample zip file "example_datasets/voc.zip" is in this repository.
 ```
