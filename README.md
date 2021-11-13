@@ -29,6 +29,8 @@ There are labeling tools, such as [CVAT][cvatlink] and [labelimg][labelimglink] 
 
 ### Prepare dataset yaml file
 Regardless of the dataset format, ".yaml" file containing information about the class name and number of classes is needed.
+- names: Names of classes
+- nc: Number of classes
 
 #### Yaml file example
 ```
