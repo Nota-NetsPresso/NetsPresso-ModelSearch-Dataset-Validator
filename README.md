@@ -16,9 +16,9 @@ netspresso@netspresso:~/dataset_validator$ PYTHONPATH=. python3 run.py --dir yol
 Traceback (most recent call last):
   File "run.py", line 13, in <module>
     validate(dir_path, num_classes)
-  File "/hdd1/home/cbpark/dataset_validator/src/yolo.py", line 49, in validate
+  File "/hdd1/home/dataset_validator/src/yolo.py", line 49, in validate
     validate_image_files_exist(img_list, label_list, "txt")
-  File "/hdd1/home/cbpark/dataset_validator/src/utils.py", line 186, in validate_image_files_exist
+  File "/hdd1/home/dataset_validator/src/utils.py", line 186, in validate_image_files_exist
     f"There is no image file for label file '{label_name}.{suffix}'"
 src.exceptions.ImageException: There is no image file for label file 'yolo/train/labels/000000000025.txt'
 ```
