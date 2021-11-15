@@ -187,6 +187,8 @@ def validate_image_files_exist(img_list: List[str], label_list: List[str], suffi
 
 def validate_data_yaml(dir_path: str, num_classes: int):
     yaml_path = Path(dir_path) / Path("data.yaml")
+    if not yaml_path.is_file():
+        raise YamlException("There is no 'data.yaml' file.")
     data_dict = yaml_safe_load(str(yaml_path))
     if not data_dict.get("names"):
         raise YamlException("There is no 'names' in data.yaml")
