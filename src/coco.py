@@ -14,7 +14,8 @@ from src.utils import (does_it_have, get_dir_list,
                                       get_file_lists, get_target_dirs,
                                       json_load, validate_data_yaml,
                                       validate_first_dirs,
-                                      validate_second_dirs)
+                                      validate_second_dirs,
+                                      validate_dataset_type)
 
 
 def validate_coco_bbox(bbox: List[float], width: float, height: float):
@@ -161,10 +162,11 @@ def validate_json_exist(dir_path: Path):
         raise LabelException(".json file have to exist~~~")
 
 
-def validate(root_path: str, num_classes: int, delete=False):
+def validate(root_path: str, num_classes: int, format:str, delete=False):
     dir_path = Path(root_path)
     dir_paths = validate_first_dirs(dir_path)
     validate_second_dirs(dir_paths)
+    validate_dataset_type(root_path, format)
     img_list, label_list = get_file_lists(dir_paths)
     validate_json_exist(dir_path)
     validate_data_yaml(dir_path, num_classes)

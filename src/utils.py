@@ -142,9 +142,8 @@ def validate_first_dirs(dir_path: str):
             ret_dir_paths.append(str(p))
     if not ("train" in check_dir_paths):
         raise DirectoryException("Dataset dosen't have 'train' dir")
-    correct_cases = [set(["train", "val", "test"]), set(["train", "val"]), set(["train", "test"])]
-    if set(check_dir_paths) not in correct_cases:
-        raise DirectoryException("Dataset has directory other than ['train', 'val', 'test'] in first depth.")
+    if ("val" not in check_dir_paths) and ("test" not in check_dir_paths):
+        raise DirectoryException("Dataset dosen't have 'val' dir")
     return ret_dir_paths
 
 
@@ -174,12 +173,12 @@ def replace_images2labels(path: str):
 def validate_image_files_exist(img_list: List[str], label_list: List[str], suffix: str):
     img_name, label_name = [], []
     for i in img_list:
-        path_wo_suffix = str(PurePath(i).stem)
+        path_wo_suffix = str(PurePath(i)).split(".")[:-1][0]
         path_wo_suffix = replace_images2labels(path_wo_suffix)
         img_name += [path_wo_suffix]
 
     for l in label_list:
-        label_name = str(PurePath(l).stem)
+        label_name = str(PurePath(l)).split(".")[:-1][0]
         if not label_name in img_name:
             raise ImageException(
                 f"There is no image file for label file '{label_name}.{suffix}'"
@@ -239,26 +238,3 @@ def get_target_dirs(dir_paths: List[str], file_types: List[str]):
             ret_dir_paths.append(p)
             continue
     return ret_dir_paths
-
-  
-def validate_dataset_type(root_path:str, user_data_type:str):
-    """
-    data_type in ["coco", "yolo", "voc"]
-    """  
-    target_dirs = ["train/labels/", "val/labels/", "test/labels/"]
-        for td in target_dirs:
-            print(Path(root_path)/td)
-            paths = (Path(root_path)/td).glob("**/*")
-            for p in paths:
-                suffix = str(p.suffix)
-                if suffix == ".xml":
-                    data_type = "voc"
-                    break
-                if suffix == ".txt":
-                    data_type = "yolo"
-                    break
-                if suffix == ".json":
-                    data_type = "coco"
-                    break
-            if user_data_type != data_type:
-                raise DatatypeException(f"Check correct data type, your dataset type looks like '{data_type}'")

@@ -10,5 +10,4 @@ if __name__=="__main__":
     args = parser.parse_args()
     dir_path, num_classes, dataset_type = args.dir, args.num_classes, args.format
     validate = getattr(importlib.import_module(f"src.{dataset_type}"), "validate")
-    validate_dataset_type(dir_path, dataset_type)
-    validate(dir_path, num_classes)
+    validate(dir_path, num_classes, dataset_type)

@@ -15,7 +15,8 @@ from src.utils import (get_bbox_from_xml_obj, get_file_lists,
                                       replace_images2labels,
                                       validate_data_yaml, validate_first_dirs,
                                       validate_image_files_exist,
-                                      validate_second_dirs, xml_load)
+                                      validate_second_dirs, xml_load,
+                                      validate_dataset_type)
 
 
 def validate_label_files(
@@ -68,10 +69,11 @@ def validate_label_files(
                 )
 
 
-def validate(root_path: str, num_classes: int, delete=False):
+def validate(root_path: str, num_classes: int, format:str, delete=False):
     dir_path = Path(root_path)
     dir_paths = validate_first_dirs(dir_path)
     validate_second_dirs(dir_paths)
+    validate_dataset_type(root_path, format)
     img_list, label_list = get_file_lists(dir_paths)
     label2id = get_label2id(label_list, num_classes)
     if len(label2id) != num_classes:

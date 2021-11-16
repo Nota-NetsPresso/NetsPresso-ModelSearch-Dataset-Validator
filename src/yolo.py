@@ -13,7 +13,8 @@ from src.exceptions import (DirectoryException, ImageException,
 from src.utils import (get_file_lists, replace_images2labels,
                                       validate_data_yaml, validate_first_dirs,
                                       validate_image_files_exist,
-                                      validate_second_dirs, yaml_safe_load)
+                                      validate_second_dirs, yaml_safe_load,
+                                      validate_dataset_type)
 
 
 def validate_label_files(label_list: List[str], num_classes: int):
@@ -40,10 +41,11 @@ def validate_label_files(label_list: List[str], num_classes: int):
                     )
 
 
-def validate(root_path: str, num_classes: int, delete=False):
+def validate(root_path: str, num_classes: int, format:str, delete=False):
     dir_path = Path(root_path)
     dir_paths = validate_first_dirs(dir_path)
     validate_second_dirs(dir_paths)
+    validate_dataset_type(root_path, format)
     img_list, label_list = get_file_lists(dir_paths)
     validate_data_yaml(dir_path, num_classes)
     validate_image_files_exist(img_list, label_list, "txt")
