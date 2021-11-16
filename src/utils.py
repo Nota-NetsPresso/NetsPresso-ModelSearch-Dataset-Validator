@@ -12,7 +12,8 @@ from typing import Dict, List
 import yaml
 
 from src.exceptions import (DirectoryException, ImageException,
-                                   LabelException, YamlException)
+                                   LabelException, YamlException,
+                                   DatatypeException)
 
 
 def get_img_list(file_paths: str, img_list: List[str]) -> List[str]:
@@ -238,3 +239,27 @@ def get_target_dirs(dir_paths: List[str], file_types: List[str]):
             ret_dir_paths.append(p)
             continue
     return ret_dir_paths
+    
+    
+def validate_dataset_type(root_path: str, user_data_type: str):
+    """
+    data_type in ["coco", "yolo", "voc"]
+    """
+    target_dirs = ["train/labels/", "val/labels/", "test/labels/"]
+    for td in target_dirs:
+        paths = (Path(root_path) / td).glob("**/*")
+        for p in paths:
+            suffix = str(p.suffix)
+            if suffix == ".xml":
+                data_type = "voc"
+                break
+            if suffix == ".txt":
+                data_type = "yolo"
+                break
+            if suffix == ".json":
+                data_type = "coco"
+                break
+        if user_data_type != data_type:
+            raise DatatypeException(
+                f"Check correct data type, your dataset type looks like '{data_type}'"
+            )
