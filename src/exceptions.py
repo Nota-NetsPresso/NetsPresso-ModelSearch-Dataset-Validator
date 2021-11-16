@@ -17,3 +17,7 @@ class LabelException(ValidationException):
 
 class YamlException(ValidationException):
     pass
+    
+
+class DatatypeException(ValidationException):
+    pass
