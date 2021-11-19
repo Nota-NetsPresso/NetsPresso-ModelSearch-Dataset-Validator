@@ -208,7 +208,7 @@ Compare your '.zip' file with the images below.
 <p align="center"><img src="https://user-images.githubusercontent.com/69490987/141053041-18a2b5f3-c6c0-4a8a-8785-1a4bc20bcecc.png"></p>
 
 #### Wrong case
-![101db6f-wrong_case](https://user-images.githubusercontent.com/45225793/142646291-9121cac2-c905-494a-8ad5-f2756326612b.png)
+<p align="center">![101db6f-wrong_case](https://user-images.githubusercontent.com/45225793/142646291-9121cac2-c905-494a-8ad5-f2756326612b.png)</p>
 
 
 
