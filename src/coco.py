@@ -10,12 +10,11 @@ import yaml
 
 from src.exceptions import (DirectoryException, ImageException,
                                    LabelException, YamlException)
-from src.utils import (does_it_have, get_dir_list,
-                                      get_file_lists, get_target_dirs,
-                                      json_load, validate_data_yaml,
-                                      validate_first_dirs,
-                                      validate_second_dirs,
-                                      validate_dataset_type)
+from src.utils import (get_file_lists, validate_first_dirs,
+                       json_load, validate_data_yaml,
+                       validate_dataset_type, validate_first_dirs,
+                       validate_second_dirs, get_dir_list,
+                       get_img_file_types, get_target_dirs)
 
 
 def validate_coco_bbox(bbox: List[float], width: float, height: float):
@@ -146,34 +145,19 @@ def validate_label_files(label_list: List[str], num_classes: int):
 
 def validate_json_exist(dir_path: Path):
     dirs = get_dir_list(dir_path)
-    img_file_types = [
-        "*.jpeg",
-        "*.JPEG",
-        "*.jpg",
-        "*.JPG",
-        "*.png",
-        "*.PNG",
-        "*.BMP",
-        "*.bmp",
-    ]
+    img_file_types = get_img_file_types()
     image_dir_paths = get_target_dirs(dirs, img_file_types)
     json_dir_paths = get_target_dirs(dirs, ["*.json"])
     if len(image_dir_paths) != len(json_dir_paths):
         raise LabelException(".json file have to exist~~~")
 
 
-def validate(root_path: str, num_classes: int, format:str, delete=False):
-    dir_path = Path(root_path)
-    dir_paths = validate_first_dirs(dir_path)
-    validate_second_dirs(dir_paths)
-    validate_dataset_type(root_path, format)
-    img_list, label_list = get_file_lists(dir_paths)
+def validate(dir_path: str, num_classes: int, label_list:List[str], img_list:None):
+    """
+    img_list is not used in this function, 
+    but written for dynamic importing in app.core.validator.utils.py
+    """
     validate_json_exist(dir_path)
-    validate_data_yaml(dir_path, num_classes)
+    print("[Validate: 5/6]: Done validation for exsisting json files in correct position.")
     validate_label_files(label_list, num_classes)
-    if delete:
-        delete_dirs(dir_path)
-
-
-if __name__ == "__main__":
-    validate("devtest/zip2_coco", "zip2_coco", 3)
+    print("[Validate: 6/6]: Done validation for each json files.")

@@ -13,10 +13,11 @@ from src.exceptions import (DirectoryException, ImageException,
 from src.utils import (get_bbox_from_xml_obj, get_file_lists,
                                       get_image_info_xml, get_label2id,
                                       replace_images2labels,
-                                      validate_data_yaml, validate_first_dirs,
+                                      validate_data_yaml,
+                                      validate_dataset_type,
+                                      validate_first_dirs,
                                       validate_image_files_exist,
-                                      validate_second_dirs, xml_load,
-                                      validate_dataset_type)
+                                      validate_second_dirs, xml_load)
 
 
 def validate_label_files(
@@ -69,23 +70,13 @@ def validate_label_files(
                 )
 
 
-def validate(root_path: str, num_classes: int, format:str, delete=False):
-    dir_path = Path(root_path)
-    dir_paths = validate_first_dirs(dir_path)
-    validate_second_dirs(dir_paths)
-    validate_dataset_type(root_path, format)
-    img_list, label_list = get_file_lists(dir_paths)
+def validate(dir_path: str, num_classes: int, label_list:List[str], img_list:List[str]):
     label2id = get_label2id(label_list, num_classes)
     if len(label2id) != num_classes:
         raise LabelException(
             f"'num_classes' is not matched with number of classes in your datasets. Number of classes in your dataset is {len(label2id)}"
         )
     validate_image_files_exist(img_list, label_list, "xml")
+    print("[Validate: 5/6]: Done validation for exsisting images files in correct position.")
     validate_label_files(img_list, label_list, num_classes, label2id)
-    validate_data_yaml(dir_path, num_classes)
-    if delete:
-        delete_dirs(dir_path)
-
-
-if __name__ == "__main__":
-    validate("devtest/zip2_voc", "zip2_voc", 8)
+    print("[Validate: 6/6]: Done validation for each label files.")
