@@ -166,8 +166,8 @@ A sample zip file "example_datasets/voc.zip" is in this repository.
 │   │   ├── example_1.jpg
 │   │   └── example_2.jpg
 │   │   └── sub_dir
-│   │       ├── example_1.xml
-│   │       └── example_2.xml
+│   │       ├── example_1.jpg
+│   │       └── example_2.jpg
 │   └── labels
 │       ├── {labels same structure as images}
 │       ├── example_1.xml
