@@ -79,7 +79,7 @@ A sample zip file "example_datasets/yolo.zip" is in this repository.
 │   └── labels
 │       └── {labels same structure as images}
 │
-└── dataset.yaml
+└── data.yaml
 ```
 
 ### Dataset file example for YOLO format
@@ -126,7 +126,7 @@ A sample zip file "example_datasets/coco.zip" is in this repository.
 │   └── labels
 │       └── {labels same structure as images}
 │
-└── dataset.yaml
+└── data.yaml
 ```
 
 If supercategory is in the ".json" file, it have to be written in "data.yaml" file too. Please see example below.
@@ -186,7 +186,7 @@ A sample zip file "example_datasets/voc.zip" is in this repository.
 │   └── labels
 │       └── {labels same structure as images}
 │
-└── dataset.yaml
+└── data.yaml
 ```
 
 ## Make .zip file with dataset
