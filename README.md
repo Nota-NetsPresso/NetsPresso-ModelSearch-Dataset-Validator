@@ -28,7 +28,7 @@ NetsPresso supports YOLO, COCO, and VOC formats for object detection tasks. (YOL
 There are labeling tools, such as [CVAT][cvatlink] and [labelimg][labelimglink] support these annotation formats.
 
 ### Prepare dataset yaml file
-Regardless of the dataset format, ".yaml" file containing information about the class name and number of classes is needed.
+Regardless of the dataset format, "data.yaml" file containing information about the class name and number of classes is needed.
 - names: Names of classes
 - nc: Number of classes
 
