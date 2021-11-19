@@ -1,7 +1,8 @@
 class ValidationException(Exception):
     """Parent class for validation exception."""
+
     pass
-    
+
 
 class DirectoryException(ValidationException):
     pass
@@ -17,7 +18,7 @@ class LabelException(ValidationException):
 
 class YamlException(ValidationException):
     pass
-    
+
 
 class DatatypeException(ValidationException):
     pass

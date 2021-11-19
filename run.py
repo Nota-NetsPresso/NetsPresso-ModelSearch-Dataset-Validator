@@ -1,5 +1,6 @@
 import argparse
 import importlib
+from src.utils import validate
 
 
 if __name__=="__main__":
@@ -9,5 +10,4 @@ if __name__=="__main__":
     parser.add_argument('--format', type=str, required=True, help='dataset format')
     args = parser.parse_args()
     dir_path, num_classes, dataset_type = args.dir, args.num_classes, args.format
-    validate = getattr(importlib.import_module(f"src.{dataset_type}"), "validate")
     validate(dir_path, num_classes, dataset_type)
