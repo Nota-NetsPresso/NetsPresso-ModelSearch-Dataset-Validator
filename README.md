@@ -56,18 +56,18 @@ A sample zip file "example_datasets/yolo.zip" is in this repository.
 ├── train
 │   ├── images
 │   │   ├── {images or directories}
-│   │   ├── example1.jpg
-│   │   └── example2.jpg
+│   │   ├── example_1.jpg
+│   │   └── example_2.jpg
 │   │   └── sub_dir
-│   │       ├── example_3.jpg
-│   │       └── example_4.jpg
+│   │       ├── example_1.jpg
+│   │       └── example_2.jpg
 │   └── labels
 │       ├── {labels same structure as images}
-│       ├── example1.txt
-│       └── example2.txt
+│       ├── example_1.txt
+│       └── example_2.txt
 │       └── sub_dir
-│           ├── example_3.txt
-│           └── example_4.txt
+│           ├── example_1.txt
+│           └── example_2.txt
 ├── val
 │   ├── images
 │   │   └── {images or directories}
@@ -108,8 +108,8 @@ A sample zip file "example_datasets/coco.zip" is in this repository.
 │   │   ├── example_1.jpg
 │   │   ├── example_2.jpg
 │   │   └── sub_dir
-│   │       ├── example_3.jpg
-│   │       └── example_4.jpg
+│   │       ├── example_1.jpg
+│   │       └── example_2.jpg
 │   └── labels
 │       ├── {labels same structure as images}
 │       ├── example.json (contain annotaion of images in "train/images/")
@@ -166,15 +166,15 @@ A sample zip file "example_datasets/voc.zip" is in this repository.
 │   │   ├── example_1.jpg
 │   │   └── example_2.jpg
 │   │   └── sub_dir
-│   │       ├── example_3.xml
-│   │       └── example_4.xml
+│   │       ├── example_1.xml
+│   │       └── example_2.xml
 │   └── labels
 │       ├── {labels same structure as images}
 │       ├── example_1.xml
 │       └── example_2.xml
 │       └── sub_dir
-│           ├── example_3.xml
-│           └── example_4.xml
+│           ├── example_1.xml
+│           └── example_2.xml
 ├── val
 │   ├── images
 │   │   └── {images or directories}
