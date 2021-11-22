@@ -12,16 +12,28 @@ python3 run.py --dir datasets/yolo --format yolo --num_classes 80
 ```
 #### Example of error message
 ```
-netspresso@netspresso:~/dataset_validator$ PYTHONPATH=. python3 run.py --dir yolo --format yolo --num_classes 11
-Traceback (most recent call last):
-  File "run.py", line 13, in <module>
-    validate(dir_path, num_classes)
-  File "/hdd1/home/dataset_validator/src/yolo.py", line 49, in validate
-    validate_image_files_exist(img_list, label_list, "txt")
-  File "/hdd1/home/dataset_validator/src/utils.py", line 186, in validate_image_files_exist
-    f"There is no image file for label file '{label_name}.{suffix}'"
-src.exceptions.ImageException: There is no image file for label file 'yolo/train/labels/000000000025.txt'
+netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --num_classes 80 --format yolo
+Start dataset validation.
+[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].
+[Validate: 2/6]: Done validation dir structure ['images', 'labels'].
+[Validate: 3/6]: Done validation, user select correct data type.
+[Validate: 4/6]: Done validation for 'data.yaml' file.
+[Validate: 5/6]: Done validation for exsisting images files in correct position.
+[Validate: 6/6]: Done validation for each label files.
+Validation error, please check 'validation_result.txt'.
 ```
+And contents of 'validation_result.txt are like below.
+```
+Dataset dosen't have 'train' dir.
+Dataset has directory other than ['train', 'val', 'test'] in first depth.
+```
+or
+```
+There is no image file for annotation file 'yolo/train/labels/000000000025.txt'
+There is no image file for annotation file 'yolo/test/labels/000000000337.txt'
+```
+
+For more detail, please see [Validation check list][validationchecklist]
 
 ## Dataset structure for NetsPresso
 NetsPresso supports YOLO, COCO, and VOC formats for object detection tasks. (YOLO format is recommended.)
@@ -218,3 +230,4 @@ Compare your '.zip' file with the images below.
 [cvatlink]: https://github.com/openvinotoolkit/cvat
 [convert2yololink]: https://github.com/ssaru/convert2Yolo
 [vocformat]: http://host.robots.ox.ac.uk/pascal/VOC/voc2007/
+[validationchecklist]: https://github.com/Nota-NetsPresso/NetsPresso-ModelSearch-Dataset-Validator/blob/main/validation_check_list.md
