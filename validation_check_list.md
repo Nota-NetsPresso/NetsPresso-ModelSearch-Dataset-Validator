@@ -13,7 +13,7 @@ We consider zero is a positive number in this document.
 1. Dataset type is same with value of '--format'.
 
 ### data.yaml
-1. 'data.yaml' are in first depth.
+1. 'data.yaml' is in first depth.
 2. 'data.yaml' has 'names' and 'nc'.
 3. Length of 'names', value of 'nc' and '--num_classes' are same.
 
