@@ -40,11 +40,11 @@ def validate_coco_bbox(
         errors.append(
             f"'y' in bbox can not be a negative value, please check annotations['id'] = {annotation_id} in {label_file}."
         )
-    if not w >= 0:
+    if not w > 0:
         errors.append(
             f"'width' in bbox can not be a negative value, please check annotations['id'] = {annotation_id} in {label_file}."
         )
-    if not h >= 0:
+    if not h > 0:
         errors.append(
             f"'height' in bbox can not be a negative value, please check annotations['id'] = {annotation_id} in {label_file}."
         )
