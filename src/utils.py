@@ -140,7 +140,7 @@ def validate_first_dirs(dir_path: str, errors:List[str])->List[str]:
     ]
     if set(check_dir_paths) not in correct_cases:
         errors.append(
-            "Dataset has directory other than ['train', 'val', 'test'] in first depth."
+            "Dataset has wrong directory structure. Any other directory than ['train', 'val', 'test'] is not accepted."
         )
     return ret_dir_paths, errors
 
