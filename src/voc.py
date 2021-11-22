@@ -8,8 +8,6 @@ from typing import Dict, List
 
 import yaml
 
-from src.exceptions import (DirectoryException, ImageException,
-                                   LabelException, YamlException)
 from src.utils import (get_bbox_from_xml_obj, get_file_lists,
                                       get_image_info_xml, get_label2id,
                                       replace_images2labels,
@@ -25,58 +23,69 @@ def validate_label_files(
     label_list: List[str],
     num_classes: int,
     label2id: Dict[str, int],
+    errors: List[str]
 ):
-    img_files = []
-    for img in img_list:
-        p = PurePath(img)
-        p = str(p.parts[-1])  # p == file name like '970.jpg'
-        img_files.append(p)
     for anno in label_list:
         xml_obj = xml_load(anno)
         image_info = get_image_info_xml(xml_obj)
-        if not (image_info["file_name"] in img_files):
-            raise ImageException(
-                f"{image_info['file_name']} is not in dataset, check your files"
-            )
         for obj in xml_obj.findall("object"):
-            xmin, ymin, xmax, ymax = get_bbox_from_xml_obj(obj, label2id, anno)
+            xmin, ymin, xmax, ymax, errors = get_bbox_from_xml_obj(obj, label2id, anno, errors)
             if xmax <= xmin or ymax <= ymin:
-                raise LabelException(
-                    f"Box size error in {os.path.basename(anno)}: (xmin, ymin, xmax, ymax): {xmin, ymin, xmax, ymax}"
+                errors.append(
+                    f"Box size error in {anno}: (xmin, ymin, xmax, ymax): {xmin, ymin, xmax, ymax}."
                 )
             if image_info["width"] < xmax:
-                raise LabelException(
-                    f"Box size error in {os.path.basename(anno)}: xmax: {xmax} is greater than 'width'"
+                errors.append(
+                    f"Box size error in {anno}: xmax: {xmax} is greater than 'width'."
                 )
             if image_info["height"] < ymax:
-                raise LabelException(
-                    f"Box size error in {os.path.basename(anno)}: ymax: {ymax} is greater than 'height'"
+                errors.append(
+                    f"Box size error in {anno}: ymax: {ymax} is greater than 'height'."
                 )
             if xmin <= 0:
-                raise LabelException(
-                    f"Box size error in {os.path.basename(anno)}: xmin: {xmin} is negative value."
+                errors.append(
+                    f"Box size error in {anno}: xmin: {xmin} is negative value."
                 )
             if ymin <= 0:
-                raise LabelException(
-                    f"Box size error in {os.path.basename(anno)}: ymin: {ymin} is negative value."
+                errors.append(
+                    f"Box size error in {anno}: ymin: {ymin} is negative value."
                 )
             if xmax <= 0:
-                raise LabelException(
-                    f"Box size error in {os.path.basename(anno)}: xmax: {xmax} is negative value."
+                errors.append(
+                    f"Box size error in {anno}: xmax: {xmax} is negative value."
                 )
             if ymax <= 0:
-                raise LabelException(
-                    f"Box size error in {os.path.basename(anno)}: ymax: {ymax} is negative value."
+                errors.append(
+                    f"Box size error in {anno}: ymax: {ymax} is negative value."
                 )
+    return errors
 
 
-def validate(dir_path: str, num_classes: int, label_list:List[str], img_list:List[str]):
-    label2id = get_label2id(label_list, num_classes)
+def validate_yaml_names(yaml_label:List[str], label2id:Dict[str, int], num_classes:int, errors:List[str]):
+    for y in yaml_label:
+        if y not in label2id.keys():
+            errors.append(
+                f"{y} is not in xml files. Class names in 'data.yaml' have to match with xml files. Please check 'data.yaml' and xml files. Class names in xml files are {list(label2id.keys())}.")
+
     if len(label2id) != num_classes:
-        raise LabelException(
-            f"'num_classes' is not matched with number of classes in your datasets. Number of classes in your dataset is {len(label2id)}"
+        errors.append(
+            f"'num_classes' is not matched with number of classes in your datasets. Number of classes in dataset is {len(label2id)}, Class names in xml files are {list(label2id.keys())}."
         )
-    validate_image_files_exist(img_list, label_list, "xml")
+    return errors
+
+
+def validate(
+    dir_path: str, 
+    num_classes: int, 
+    label_list:List[str], 
+    img_list:List[str], 
+    yaml_label:List[str],
+    errors:List[str]
+    ):
+    label2id = get_label2id(label_list, num_classes)
+    errors = validate_yaml_names(yaml_label, label2id, num_classes, errors)
+    errors = validate_image_files_exist(img_list, label_list, "xml", errors)
     print("[Validate: 5/6]: Done validation for exsisting images files in correct position.")
-    validate_label_files(img_list, label_list, num_classes, label2id)
+    errors = validate_label_files(img_list, label_list, num_classes, label2id, errors)
     print("[Validate: 6/6]: Done validation for each label files.")
+    return errors
