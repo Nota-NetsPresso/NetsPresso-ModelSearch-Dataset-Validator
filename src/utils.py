@@ -1,80 +1,3 @@
-"""
-VOC xml format
-####
-<annotation>
-        <folder>VOC2012</folder>
-    ####<filename>2007_000243.jpg</filename>
-        <source>
-                <database>The VOC2007 Database</database>
-                <annotation>PASCAL VOC2007</annotation>
-                <image>flickr</image>
-        </source>
-        <size>
-            ####<width>500</width>
-            ####<height>333</height>
-            ####<depth>3</depth>
-        </size>
-        <segmented>1</segmented>
-    ####<object>
-            ####<name>aeroplane</name>
-                <pose>Unspecified</pose>
-                <truncated>0</truncated>
-                <difficult>0</difficult>
-            ####<bndbox>
-                    ####<xmin>181</xmin>
-                    ####<ymin>127</ymin>
-                    ####<xmax>274</xmax>
-                    ####<ymax>193</ymax>
-                </bndbox>
-        </object>
-</annotation>
-
-<annotation>
-	<folder>VOC2007</folder>
-	<filename>000005.jpg</filename>
-	<source>
-		<database>The VOC2007 Database</database>
-		<annotation>PASCAL VOC2007</annotation>
-		<image>flickr</image>
-		<flickrid>325991873</flickrid>
-	</source>
-	<owner>
-		<flickrid>archintent louisville</flickrid>
-		<name>?</name>
-	</owner>
-	<size>
-		<width>500</width>
-		<height>375</height>
-		<depth>3</depth>
-	</size>
-	<segmented>0</segmented>
-	<object>
-		<name>chair</name>
-		<pose>Rear</pose>
-		<truncated>0</truncated>
-		<difficult>0</difficult>
-		<bndbox>
-			<xmin>263</xmin>
-			<ymin>211</ymin>
-			<xmax>324</xmax>
-			<ymax>339</ymax>
-		</bndbox>
-	</object>
-	<object>
-		<name>chair</name>
-		<pose>Unspecified</pose>
-		<truncated>0</truncated>
-		<difficult>0</difficult>
-		<bndbox>
-			<xmin>165</xmin>
-			<ymin>264</ymin>
-			<xmax>253</xmax>
-			<ymax>372</ymax>
-		</bndbox>
-	</object>
-</annotation>
-"""
-
 import glob
 import json
 import os
@@ -89,9 +12,7 @@ from typing import Dict, List
 
 import yaml
 
-from src.exceptions import (DatatypeException, DirectoryException,
-                            ImageException, LabelException,
-                            YamlException)
+from src.exceptions import DatatypeException, YamlException
 
 
 def get_img_list(file_paths: str, img_list: List[str]) -> List[str]:
@@ -161,19 +82,19 @@ def get_label2id(label_list: List[str], num_classes: int)->Dict[str, int]:
     return label2id
 
 
-def get_bbox_from_xml_obj(obj, label2id: Dict[str, str], anno: str)->(int, int, int, int):
+def get_bbox_from_xml_obj(obj, label2id: Dict[str, str], anno: str, errors:List[str])->(int, int, int, int, List[str]):
     xml_file_name = Path(anno).parts[-1]
     label = obj.findtext("name")
     if not (label in label2id):
-        raise LabelException(
-            f"Error: {label} is not in data.yaml but in {xml_file_name} file"
+        errors.append(
+            f"{label} is not in data.yaml but in {anno} file."
         )
     bndbox = obj.find("bndbox")
     xmin = int(float(bndbox.findtext("xmin")))
     ymin = int(float(bndbox.findtext("ymin")))
     xmax = int(float(bndbox.findtext("xmax")))
     ymax = int(float(bndbox.findtext("ymax")))
-    return xmin, ymin, xmax, ymax
+    return xmin, ymin, xmax, ymax, errors
 
 
 def get_image_info_xml(annotation_root, extract_num_from_imgid=True)->Dict[str, any]:
@@ -202,7 +123,7 @@ def xml_load(xml_path: str):
     return annotation_root
 
 
-def validate_first_dirs(dir_path: str)->List[str]:
+def validate_first_dirs(dir_path: str, errors:List[str])->List[str]:
     paths = Path(dir_path).glob("*")
     check_dir_paths = []
     ret_dir_paths = []
@@ -211,33 +132,33 @@ def validate_first_dirs(dir_path: str)->List[str]:
             check_dir_paths.append(str(p.name))
             ret_dir_paths.append(str(p))
     if not ("train" in check_dir_paths):
-        raise DirectoryException("Dataset dosen't have 'train' dir")
+        errors.append("Dataset dosen't have 'train' dir.")
     correct_cases = [
         set(["train", "val", "test"]),
         set(["train", "val"]),
-        set(["train", "test"]),
+        set(["train", "test"])
     ]
     if set(check_dir_paths) not in correct_cases:
-        raise DirectoryException(
+        errors.append(
             "Dataset has directory other than ['train', 'val', 'test'] in first depth."
         )
-    return ret_dir_paths
+    return ret_dir_paths, errors
 
 
-def validate_second_dirs(dir_path: List[str])->List[str]:
+def validate_second_dirs(dir_path: List[str], errors:List[str])->List[str]:
+    ret_dir_paths = []
     for sub_dir in dir_path:
         paths = Path(sub_dir).glob("*")
         check_dir_paths = []
-        ret_dir_paths = []
         for p in paths:
             if p.is_dir():
                 check_dir_paths.append(str(p.name))
                 ret_dir_paths.append(str(p))
         if not ("images" in check_dir_paths):
-            raise DirectoryException("Dataset dosen't have 'images' dir")
+            errors.append(f"Dataset dosen't have 'images' dir under {sub_dir}.")
         if not ("labels" in check_dir_paths):
-            raise DirectoryException("Dataset dosen't have 'labels' dir")
-    return ret_dir_paths
+            errors.append(f"Dataset dosen't have 'labels' dir under {sub_dir}.")
+    return ret_dir_paths, errors
 
 
 def replace_images2labels(path: str)->str:
@@ -247,38 +168,43 @@ def replace_images2labels(path: str)->str:
     return path
 
 
-def validate_image_files_exist(img_list: List[str], label_list: List[str], suffix: str):
+def get_filename_wo_suffix(file_path:str):
+    file_path = file_path.split(".")
+    file_path = ".".join(file_path[:-1])
+    return file_path
+
+
+def validate_image_files_exist(img_list: List[str], label_list: List[str], suffix: str, errors:List[str]):
     img_name, label_name = [], []
     for i in img_list:
-        path_wo_suffix = str(PurePath(i).stem)
+        path_wo_suffix = get_filename_wo_suffix(i)
         path_wo_suffix = replace_images2labels(path_wo_suffix)
         img_name += [path_wo_suffix]
-
     for l in label_list:
-        label_name = str(PurePath(l).stem)
+        label_name = get_filename_wo_suffix(l)
         if not label_name in img_name:
-            raise ImageException(
-                f"There is no image file for label file '{label_name}.{suffix}'"
+            errors.append(
+                f"There is no image file for annotation file '{l}'"
             )
+    return errors
 
 
-def validate_data_yaml(dir_path: str, num_classes: int):
+def validate_data_yaml(dir_path: str, num_classes: int, errors:List[str]):
     yaml_path = Path(dir_path) / Path("data.yaml")
     if not yaml_path.is_file():
-        raise YamlException("There is no 'data.yaml' file.")
+        errors.append("There is no 'data.yaml' file.")
     data_dict = yaml_safe_load(str(yaml_path))
     if not data_dict.get("names"):
-        raise YamlException("There is no 'names' in data.yaml")
+        raise YamlException("There is no 'names' in data.yaml.")
     if not data_dict.get("nc"):
-        raise YamlException("There is no 'nc' in data.yaml")
-    if len(data_dict["names"]) != num_classes:
-        raise YamlException(
-            "data.yaml has unmatching number of class names compared to 'names', please check 'names'"
-        )
-    if data_dict["nc"] != num_classes:
-        raise YamlException(
-            "data.yaml has unmatching number of class names compared to 'nc', please check 'nc'"
-        )
+        raise YamlException("There is no 'nc' in data.yaml.")
+    if len(data_dict["names"]) != data_dict["nc"]:
+        errors.append("Length of 'names' and value of 'nc' in data.yaml must be same.")
+    if num_classes != data_dict["nc"]:
+        errors.append("Value of 'nc' in data.yaml must be same with num_classes.")
+    if num_classes != len(data_dict["names"]):
+        errors.append("Length of 'names' in data.yaml must be same with num_classes.")
+    return data_dict['names'], errors
 
 
 def validate_dataset_type(root_path: str, user_data_type: str):
@@ -286,24 +212,28 @@ def validate_dataset_type(root_path: str, user_data_type: str):
     data_type in ["coco", "yolo", "voc"]
     """
     target_dirs = ["train/labels/", "val/labels/", "test/labels/"]
+    data_type = None
     for td in target_dirs:
         paths = (Path(root_path) / td).glob("**/*")
         for p in paths:
             suffix = str(p.suffix)
             if suffix == ".xml":
                 data_type = "voc"
-                break
             if suffix == ".txt":
                 data_type = "yolo"
                 break
             if suffix == ".json":
                 data_type = "coco"
                 break
-        if user_data_type != data_type:
-            raise DatatypeException(
-                f"Check correct data type, your dataset type looks like '{data_type}'"
-            )
-
+    if not data_type:
+        raise DatatypeException(
+            f"There are not any annotation files in {td}."
+        )
+    elif user_data_type != data_type:
+        raise DatatypeException(
+            f"Check correct data type, your dataset type looks like '{data_type}'."
+        )
+        
 
 def get_dir_list(path: Path)->List[str]:
     """
@@ -330,7 +260,7 @@ def does_it_have(paths: str, file_type_list: List[str])->bool:
 
 def get_target_dirs(dir_paths: List[str], file_types: List[str])->List[str]:
     """
-    Return directory list which have files in same file types in file_types
+    Return directory list which have files in same file types in file_types.
     """
     ret_dir_paths = []
     for p in dir_paths:
@@ -355,27 +285,35 @@ def get_img_file_types()->List[str]:
     return img_file_types
 
 
+def write_error_txt(errors:List[str]):
+    f = open("validation_result.txt", 'w')
+    for e in errors:
+        f.write(e+"\n")
+    f.close()
+
+
 def validate(root_path: str, num_classes: int, data_format:str, delete=False):
     print("Start dataset validation.")
+    errors = []
     dir_path = Path(root_path)
-    dir_paths = validate_first_dirs(dir_path)
+    dir_paths, errors = validate_first_dirs(dir_path, errors)
     print("[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].")
-    validate_second_dirs(dir_paths)
+    _, errors = validate_second_dirs(dir_paths, errors)
     print("[Validate: 2/6]: Done validation dir structure ['images', 'labels'].")
     validate_dataset_type(root_path, data_format)
     print("[Validate: 3/6]: Done validation, user select correct data type.")
     img_list, label_list = get_file_lists(dir_paths)
-    validate_data_yaml(dir_path, num_classes)
+    yaml_label, errors = validate_data_yaml(dir_path, num_classes, errors)
     print("[Validate: 4/6]: Done validation for 'data.yaml' file.")
     _validate = getattr(
         importlib.import_module(f"src.{data_format.lower()}"),
         "validate",
     )
-    _validate(dir_path, num_classes, label_list, img_list)
-    print("[Validate] Complete.")
+    errors = _validate(dir_path, num_classes, label_list, img_list, yaml_label, errors)
+    if len(errors) == 0:
+        print("Validation completed! Now try your dataset on NetsPresso!")
+    else:
+        write_error_txt(errors)
+        print("Validation error, please check 'validation_result.txt'.")
     if delete:
         delete_dirs(dir_path)
-
-
-if __name__ == "__main__":
-    validate("voc_data", 20, 'voc')
