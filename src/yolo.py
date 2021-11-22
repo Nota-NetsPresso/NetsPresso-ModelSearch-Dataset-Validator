@@ -49,7 +49,7 @@ def validate(
     errors:List[str]
 ):
     errors = validate_image_files_exist(img_list, label_list, "txt", errors)
-    print("[Validate: 5/6]: Done validation for exsisting images files in correct position.")
+    print("[Validate: 5/6]: Validation finished for existing image files in the correct position.")
     errors = validate_label_files(label_list, num_classes, errors)
-    print("[Validate: 6/6]: Done validation for each label files.")
+    print("[Validate: 6/6]: Validation finished for label files.")
     return errors

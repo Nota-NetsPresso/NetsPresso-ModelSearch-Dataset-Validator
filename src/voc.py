@@ -69,7 +69,7 @@ def validate_yaml_names(yaml_label:List[str], label2id:Dict[str, int], num_class
 
     if len(label2id) != num_classes:
         errors.append(
-            f"'num_classes' is not matched with number of classes in your datasets. Number of classes in dataset is {len(label2id)}, Class names in xml files are {list(label2id.keys())}."
+            f"'num_classes' is not matched with the number of classes in your datasets. The number of classes in dataset is {len(label2id)}. Class names in xml files are {list(label2id.keys())}."
         )
     return errors
 
@@ -85,7 +85,7 @@ def validate(
     label2id = get_label2id(label_list, num_classes)
     errors = validate_yaml_names(yaml_label, label2id, num_classes, errors)
     errors = validate_image_files_exist(img_list, label_list, "xml", errors)
-    print("[Validate: 5/6]: Done validation for exsisting images files in correct position.")
+    print("[Validate: 5/6]: Validation finished for existing image files in the correct position.")
     errors = validate_label_files(img_list, label_list, num_classes, label2id, errors)
-    print("[Validate: 6/6]: Done validation for each label files.")
+    print("[Validate: 6/6]: Validation finished for label files.")
     return errors
