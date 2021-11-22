@@ -1,5 +1,5 @@
 # Validation Check List
-We consider zero a positive number in this document.
+We consider zero is a positive number in this document.
 
 ## Common case
 
