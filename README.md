@@ -10,7 +10,22 @@ Run the code sample below to validate if the data is ready-to-use. If you do not
 # python3 run.py --dir {your_dataset_dir_path} --format {format_of_your_dataset} --num_classes {number_of_your_dataset_classes}
 python3 run.py --dir datasets/yolo --format yolo --num_classes 80
 ```
-#### Example of error message
+### Example of error message
+
+#### Validation success case
+```
+netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --num_classes 80 --format yolo
+Start dataset validation.
+[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].
+[Validate: 2/6]: Done validation dir structure ['images', 'labels'].
+[Validate: 3/6]: Done validation, user select correct data type.
+[Validate: 4/6]: Done validation for 'data.yaml' file.
+[Validate: 5/6]: Done validation for exsisting images files in correct position.
+[Validate: 6/6]: Done validation for each label files.
+Validation completed! Now try your dataset on NetsPresso!
+```
+
+#### Validation fail case
 ```
 netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --num_classes 80 --format yolo
 Start dataset validation.
