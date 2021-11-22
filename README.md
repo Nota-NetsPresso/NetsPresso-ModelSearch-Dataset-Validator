@@ -2,6 +2,12 @@
 This repository can be used to validate dataset structure to use NetsPresso.
 
 ## How to use
+
+#### Install requirements
+```
+pip3 install -r requirements.txt
+```
+#### Run
 Run the code sample below to validate if the data is ready-to-use. If you do not get any error message, you are all set! If error occurs, please refer to the error message to resolve the issue.
 - dir_path: Root directory path of your dataset
 - format: Format of your dataset
