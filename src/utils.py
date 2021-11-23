@@ -133,6 +133,7 @@ def validate_first_dirs(dir_path: str, errors:List[str])->List[str]:
             ret_dir_paths.append(str(p))
     if not ("train" in check_dir_paths):
         errors.append("Dataset dosen't have 'train' dir.")
+        return ret_dir_paths, errors
     correct_cases = [
         set(["train", "val", "test"]),
         set(["train", "val"]),
