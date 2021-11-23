@@ -62,12 +62,12 @@ We consider zero is a positive number in this document.
 
 ## VOC case
 1. Image file is exsist if there is corresponding annotation file.
-2. 'names' in 'data.yaml' have to match with <name> tag value in annotation files.
+2. 'names' in 'data.yaml' have to match with 'name' tag value in annotation files.
 * For example, when class name in xml annotation file is 'diningtable'. if 'dining table' in 'names' in 'data.yaml' is wrong case.
 5. Each coordinate in annotation file is positive.
 6. Each 'xmin' and 'ymin' in annotation file are equal or greater than 0.
 7. Each 'xmax' in annotation file is greater than 'xmin'.
-8. Each 'xmax' in annotation file is less than value of <width>.
+8. Each 'xmax' in annotation file is less than value of 'width' tag.
 9. Each 'ymax' in annotation file is greater than 'ymin'.
-10. Each 'ymax' in annotation file is less than value of <height>.
-11. The <filename> element value of the XML file should have the image file name corresponding to the label information.
+10. Each 'ymax' in annotation file is less than value of 'height' tag.
+11. The 'filename' element value of the XML file should have the image file name corresponding to the label information.
