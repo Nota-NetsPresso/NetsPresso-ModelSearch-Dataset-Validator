@@ -23,10 +23,11 @@ We consider zero is a positive number in this document.
 3. Each class number in annotation file is positive value.
 4. Each class number in annotation file is less than value of '--num_classes'.
 5. Each coordinate in annotation file is positive.
-6. Each 'center_x' and 'center_y' in annotation file are equal or greater than 0.
-7. Each 'center_x' and 'center_y' in annotation file are less than 1.
-8. Each 'height' and 'width' in annotation file are equal or less than 1.
-9. Each 'height' and 'width' in annotation file are greater than 0.
+6. Each line in annotation file have 5 numbers.
+7. Each 'center_x' and 'center_y' in annotation file are equal or greater than 0.
+8. Each 'center_x' and 'center_y' in annotation file are less than 1.
+9. Each 'height' and 'width' in annotation file are equal or less than 1.
+10. Each 'height' and 'width' in annotation file are greater than 0.
 
 ## COCO case
 1. Image file is exsist if there is corresponding annotation information.
