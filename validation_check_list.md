@@ -3,6 +3,9 @@ We consider zero is a positive number in this document.
 
 ## Common case
 
+### Broken file
+1. Every file in dataset can be opened in linux python environment.
+
 ### Wrong directory structure
 1. Any other directory than ['train', 'val', 'test'] is not accepted in first depth.
 2. 'train' directory is in first depth.
