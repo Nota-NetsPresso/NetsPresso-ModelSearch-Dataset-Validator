@@ -70,4 +70,4 @@ We consider zero is a positive number in this document.
 8. Each 'xmax' in annotation file is less than value of <width>.
 9. Each 'ymax' in annotation file is greater than 'ymin'.
 10. Each 'ymax' in annotation file is less than value of <height>.
-11. path? filename?
+11. The <filename> element value of the XML file should have the image file name corresponding to the label information.
