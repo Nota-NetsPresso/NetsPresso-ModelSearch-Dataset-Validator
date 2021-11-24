@@ -42,11 +42,11 @@ def validate_label_files(
                 errors.append(
                     f"Box size error in {anno}: ymax: {ymax} is greater than 'height'."
                 )
-            if xmin <= 0:
+            if xmin < 0:
                 errors.append(
                     f"Box size error in {anno}: xmin: {xmin} is negative value."
                 )
-            if ymin <= 0:
+            if ymin < 0:
                 errors.append(
                     f"Box size error in {anno}: ymin: {ymin} is negative value."
                 )
