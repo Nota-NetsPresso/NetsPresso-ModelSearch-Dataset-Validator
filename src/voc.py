@@ -114,4 +114,5 @@ def validate(
     print("[Validate: 5/6]: Validation finished for existing image files in the correct position.")
     errors = validate_label_files(img_list, label_list, num_classes, label2id, errors)
     print("[Validate: 6/6]: Validation finished for label files.")
+
     return errors

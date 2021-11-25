@@ -93,7 +93,6 @@ def validate_coco_label(
             errors.append(
                 f"There is an image information with wrong 'width' value in 'images' where images['id'] is {img.get('id')} in file {json_file_name}."
             )
-
     for anno in annotations:
         if anno.get("id") is None:
             errors.append(

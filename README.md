@@ -2,6 +2,12 @@
 This repository can be used to validate dataset structure to use NetsPresso.
 
 ## How to use
+
+#### Install requirements
+```
+pip3 install -r requirements.txt
+```
+#### Run
 Run the code sample below to validate if the data is ready-to-use. If you do not get any error message, you are all set! If error occurs, please refer to the error message to resolve the issue.
 - dir_path: Root directory path of your dataset
 - format: Format of your dataset
@@ -26,6 +32,25 @@ Validation completed! Now try your dataset on NetsPresso!
 ```
 
 #### Validation fail case
+For more detail, please see [Validation check list][validationchecklist]
+
+In case of validation fail with traceback, please read exception error message.
+```
+netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yaml_broken --num_classes 80 --format yolo
+Start dataset validation.
+[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].
+[Validate: 2/6]: Done validation dir structure ['images', 'labels'].
+[Validate: 3/6]: Done validation, user select correct data type.
+Traceback (most recent call last):
+  File "run.py", line 13, in <module>
+    validate(dir_path, num_classes, dataset_type)
+  File "/hdd1/home/NetsPresso-ModelSearch-Dataset-Validator/src/utils.py", line 307, in validate
+    yaml_label, errors = validate_data_yaml(dir_path, num_classes, errors)
+  File "/hdd1/home/NetsPresso-ModelSearch-Dataset-Validator/src/utils.py", line 199, in validate_data_yaml
+    raise YamlException("There is no 'names' in data.yaml.")
+src.exceptions.YamlException: There is no 'names' in data.yaml.
+```
+In case of validation fail with **Validation error, please check 'validation_result.txt'.**, please check validation_result.txt file to solve failure.
 ```
 netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --num_classes 80 --format yolo
 Start dataset validation.
@@ -47,8 +72,6 @@ or
 There is no image file for annotation file 'yolo/train/labels/000000000025.txt'
 There is no image file for annotation file 'yolo/test/labels/000000000337.txt'
 ```
-
-For more detail, please see [Validation check list][validationchecklist]
 
 ## Dataset structure for NetsPresso
 NetsPresso supports YOLO, COCO, and VOC formats for object detection tasks. (YOLO format is recommended.)
