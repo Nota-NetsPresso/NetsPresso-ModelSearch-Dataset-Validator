@@ -1,34 +1,26 @@
-import glob
-import os
-import shutil
-import sys
-import zipfile
-from pathlib import Path, PurePath, PurePosixPath
 from typing import Dict, List
+from pathlib import Path
 
 import yaml
 
-from src.utils import (get_file_lists, validate_first_dirs,
-                       json_load, validate_data_yaml,
-                       validate_dataset_type, validate_first_dirs,
-                       validate_second_dirs, get_dir_list,
+from src.utils import (json_load, get_dir_list,
                        get_img_file_types, get_target_dirs)
 
 
 def validate_coco_bbox(
     bbox: List[float], 
-    width: float, 
-    height: float, 
+    image_width: float, 
+    image_height: float, 
     label_file: str,
     annotation_id: int,
     errors:List[str]
 ):
     x, y, w, h = bbox[0], bbox[1], bbox[2], bbox[3]
-    if not width >= x + w:
+    if not image_width >= x + w:
         errors.append(
             f"'x'+'width' in bbox cannot be greater than image file's width, please check annotations['id'] = {annotation_id} in {label_file}."
         )
-    if not height >= y + h:
+    if not image_height >= y + h:
         errors.append(
             f"'y'+'height' in bbox cannot be greater than image file's width, please check annotations['id'] = {annotation_id} in {label_file}."
         )
@@ -48,13 +40,13 @@ def validate_coco_bbox(
         errors.append(
             f"'height' in bbox cannot be a negative value, please check annotations['id'] = {annotation_id} in {label_file}."
         )
-    if not width >= x:
+    if not image_width >= x:
         errors.append(
-            f"'width' in bbox cannot be less than 'x', please check annotations['id'] = {annotation_id} in {label_file}."
+            f"There can't be a bbox with width greater than the width of image, please check annotations['id'] = {annotation_id} in {label_file}."
         )
-    if not height >= y:
+    if not image_height >= y:
         errors.append(
-            f"'height' in bbox cannot be less than 'y', please check annotations['id'] = {annotation_id} in {label_file}."
+            f"There can't be a bbox with height greater than the height of image, please check annotations['id'] = {annotation_id} in {label_file}."
         )
     return errors
 
@@ -67,47 +59,104 @@ def validate_coco_label(
     errors: List[str]
 ):
     class_ids = []
+    image_flag = True
     for img in images:
         if img.get("id") is None:
             errors.append(
                 f"There is an image information without 'id' in 'images' in file {json_file_name}."
             )
+            image_flag = False
+        elif type(img.get("id")) != int:
+            errors.append(
+                f"There is an image information which 'id' is not a number in 'images' in file {json_file_name}."
+            )
+            image_flag = False
+        elif img.get("id") < 0:
+            errors.append(
+                f"There is an image information which 'id' is a negative in 'images' in file {json_file_name}."
+            )
+            image_flag = False
         if img.get("file_name") is None:
             errors.append(
                 f"There is an image information without 'file_name' in 'images' where images['id'] is {img.get('id')} in file {json_file_name}."
             )
+            image_flag = False
         if img.get("height") is None:
             errors.append(
                 f"There is an image information without 'height' in 'images' where images['id'] is {img.get('id')} in file {json_file_name}."
             )
-        if img.get("height") <= 0:
+            image_flag = False
+        elif type(img.get("height")) not in [int, float]:
+            errors.append(
+                f"There is an image information with 'height' is not a number where images['id'] is {img.get('id')} in file {json_file_name}."
+            )
+            image_flag = False
+        elif img.get("height") <= 0:
             errors.append(
                 f"There is an image information with wrong 'height' value in 'images' where images['id'] is {img.get('id')} in file {json_file_name}."
             )
+            image_flag = False
         if img.get("width") is None:
             errors.append(
                 f"There is an image information without 'width' in 'images' where images['id'] is {img.get('id')} in file {json_file_name}."
             )
-        if img.get("width") <= 0:
+            image_flag = False
+        elif type(img.get("width")) not in [int, float]:
+            errors.append(
+                f"There is an image information with 'width' is not a number where images['id'] is {img.get('id')} in file {json_file_name}."
+            )
+            image_flag = False
+        elif img.get("width") <= 0:
             errors.append(
                 f"There is an image information with wrong 'width' value in 'images' where images['id'] is {img.get('id')} in file {json_file_name}."
-            )            
+            )
+            image_flag = False
+    if not image_flag:
+        return errors
+    
+    anno_flag = True
     for anno in annotations:
         if anno.get("id") is None:
             errors.append(
                 f"There is an annotation information without 'id' in 'annotations' in file {json_file_name}."
             )
+        elif type(anno.get("id")) != int:
+            errors.append(
+                f"There is an annotation information with 'id' which is not a number in file {json_file_name}."
+            )
+        elif anno.get("id") < 0:
+            errors.append(
+                f"There is an annotation information which 'id' is a negative in 'images' in file {json_file_name}."
+            )
         if anno.get("image_id") is None:
             errors.append(
                 f"There is an annotation information without 'image_id' in 'annotations' where annotations['id'] is {anno.get('id')} in file {json_file_name}."
+            )
+        elif type(anno.get("image_id")) != int:
+            errors.append(
+                f"There is an annotation information with 'image_id' which is not a number in file {json_file_name}."
+            )
+        elif anno.get("image_id") < 0:
+            errors.append(
+                f"There is an annotation information which 'image_id' is a negative in 'images' in file {json_file_name}."
             )
         if anno.get("bbox") is None:
             errors.append(
                 f"There is an annotation information without 'bbox' in 'annotations'  where annotations['id'] is {anno.get('id')} in file {json_file_name}."
             )
-        if type(anno.get("category_id")) != int or anno.get("category_id") <= -1:
+
+        if anno.get("category_id") is None:
             errors.append(
-                f"There is an inappropriate 'category_id' value in {json_file_name}."
+                f"There is an annotation information without 'category_id' in 'annotations'  where annotations['id'] is {anno.get('id')} in file {json_file_name}."
+            )
+        elif type(anno.get("category_id")) != int:
+            errors.append(
+                f"There is an annotation information with 'category_id' is not a number in 'annotations' where annotations['id'] is {anno.get('id')} in file {json_file_name}."
+            )
+            anno_flag = False
+        elif anno.get("category_id") < 0:
+            errors.append(
+                f"There is an annotation information with 'category_id':{anno.get('category_id')} is negative in {json_file_name}."
             )
         else:
             class_ids.append(anno.get("category_id"))
@@ -120,11 +169,12 @@ def validate_coco_label(
                     json_file_name, 
                     anno.get("id"), 
                     errors)
-    if max(class_ids) > num_classes-1:
+    if anno_flag and (max(class_ids) > num_classes-1):
         errors.append(
             f"'category_id' value {max(class_ids)} is greater than expected. Check 'annotations' in {json_file_name}.'category_id' have to be equal or less than {num_classes-1}."
         )
     return errors
+
 
 def validate_category_id(categories: Dict[List, Dict[str, int]], json_path:str, errors:List[str], num_classes:int):
     nc = []
@@ -135,37 +185,41 @@ def validate_category_id(categories: Dict[List, Dict[str, int]], json_path:str, 
             )
         elif type(c["id"]) != int or c["id"] <= -1:
             errors.append(
-                f"There is an inappropriate 'id' value {c['id']} in 'categories' in {json_path}."
+                f"There is an inappropriate 'id' value '{c['id']}'' in 'categories' in {json_path}."
             )
-        if c.get("id"):
+        elif c.get("id") is not None:
             nc.append(c["id"])
     if max(nc) >= num_classes:
         errors.append(
                 f"There is a category information with greater 'id' than expected in 'categories' in {json_path}."
             )
-    if len(nc) != num_classes-1:
+    if len(nc) != num_classes:
         errors.append(
-                f"Number of category information in {json_path} is not matched with 'num_classes'."
+                f"Number of category information in {json_path} is not matched with 'nc'."
             )
     return errors
 
 
 def validate_label_files(label_list: List[str], num_classes: int, errors:List[str]):
     for ll in label_list:
-        json_dict = json_load(ll)
-        if not json_dict.get("images"):
-            errors.append(f"'images' key does not exist in the file {ll}.")
-        # validate_coco_images_exist(json_dict.get('images')) -> maybe TODO
-        if not json_dict.get("annotations"):
-            errors.append(f"'annotations' key does not exist in the file {ll}.")
-        num_categories = []
+        try:
+            json_dict = json_load(ll)
+        except:
+            errors.append(f"'{ll}' file is broken or has an SyntaxError.")
+            return errors
         if not json_dict.get("categories"):
             errors.append(f"'categories' key does not exist in the file {ll}.")
-        categories = json_dict.get("categories")
-        errors = validate_category_id(categories, ll, errors, num_classes)
-        images = json_dict["images"]
-        annotations = json_dict["annotations"]
-        errors = validate_coco_label(images, annotations, ll, num_classes, errors)
+        else:
+            categories = json_dict.get("categories")
+            errors = validate_category_id(categories, ll, errors, num_classes)            
+        if not json_dict.get("images"):
+            errors.append(f"'images' key does not exist in the file {ll}.")
+        if not json_dict.get("annotations"):
+            errors.append(f"'annotations' key does not exist in the file {ll}.")
+        if json_dict.get("images") and json_dict.get("annotations"):
+            images = json_dict["images"]
+            annotations = json_dict["annotations"]
+            errors = validate_coco_label(images, annotations, ll, num_classes, errors)
     return errors
 
 

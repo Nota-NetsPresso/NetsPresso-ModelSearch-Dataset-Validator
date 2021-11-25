@@ -9,23 +9,23 @@ pip3 install -r requirements.txt
 ```
 #### Run
 Run the code sample below to validate if the data is ready-to-use. If you do not get any error message, you are all set! If error occurs, please refer to the error message to resolve the issue.
-- dir_path: Root directory path of your dataset
-- format: Format of your dataset
-- num_classes: Number of classes in your dataset
+- dir_path: Root directory path of dataset.
+- format: Format of dataset.
+- yaml_path: Yaml file path with data set information. More information about yaml file is in [Prepare dataset yaml file][yaml_file]
 ```
-# python3 run.py --dir {your_dataset_dir_path} --format {format_of_your_dataset} --num_classes {number_of_your_dataset_classes}
-python3 run.py --dir datasets/yolo --format yolo --num_classes 80
+# PYTHONPATH=. python3 run.py --dir {dataset_dir_path} --format {format_of_dataset} --yaml_path {yaml_file_path}
+PYTHONPATH=. python3 run.py --dir datasets/yolo --format yolo --yaml_path datasets/data.yaml
 ```
 ### Example of error message
 
 #### Validation success case
 ```
-netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --num_classes 80 --format yolo
+netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --format yolo --yaml_path data.yaml
 Start dataset validation.
 [Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].
 [Validate: 2/6]: Done validation dir structure ['images', 'labels'].
 [Validate: 3/6]: Done validation, user select correct data type.
-[Validate: 4/6]: Done validation for 'data.yaml' file.
+[Validate: 4/6]: Done validation for data.yaml file.
 [Validate: 5/6]: Done validation for exsisting images files in correct position.
 [Validate: 6/6]: Done validation for each label files.
 Validation completed! Now try your dataset on NetsPresso!
@@ -36,7 +36,7 @@ For more detail, please see [Validation check list][validationchecklist]
 
 In case of validation fail with traceback, please read exception error message.
 ```
-netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yaml_broken --num_classes 80 --format yolo
+netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --format yolo --yaml_path data.yaml
 Start dataset validation.
 [Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].
 [Validate: 2/6]: Done validation dir structure ['images', 'labels'].
@@ -50,14 +50,14 @@ Traceback (most recent call last):
     raise YamlException("There is no 'names' in data.yaml.")
 src.exceptions.YamlException: There is no 'names' in data.yaml.
 ```
-In case of validation fail with **Validation error, please check 'validation_result.txt'.**, please check validation_result.txt file to solve failure.
+In case of validation fail with **Validation error, please check 'validation_result.txt'.**, please check validation_result.txt file to resolve failure.
 ```
-netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --num_classes 80 --format yolo
+netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --format yolo --yaml_path data.yaml
 Start dataset validation.
 [Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].
 [Validate: 2/6]: Done validation dir structure ['images', 'labels'].
 [Validate: 3/6]: Done validation, user select correct data type.
-[Validate: 4/6]: Done validation for 'data.yaml' file.
+[Validate: 4/6]: Done validation for data.yaml file.
 [Validate: 5/6]: Done validation for exsisting images files in correct position.
 [Validate: 6/6]: Done validation for each label files.
 Validation error, please check 'validation_result.txt'.
@@ -123,13 +123,13 @@ A sample zip file "example_datasets/yolo.zip" is in this repository.
 │   │   └── {images or directories}
 │   └── labels
 │       └── {labels same structure as images}
-├── test
-│   ├── images
-│   │   └── {images or directories}
-│   └── labels
-│       └── {labels same structure as images}
-│
-└── data.yaml
+└── test
+    ├── images
+    │   └── {images or directories}
+    └── labels
+        └── {labels same structure as images}
+
+
 ```
 
 ### Dataset file example for YOLO format
@@ -170,13 +170,13 @@ A sample zip file "example_datasets/coco.zip" is in this repository.
 │   │   └── {images or directories}
 │   └── labels
 │       └── {labels same structure as images}
-├── test
-│   ├── images
-│   │   └── {images or directories}
-│   └── labels
-│       └── {labels same structure as images}
-│
-└── data.yaml
+└── test
+    ├── images
+    │   └── {images or directories}
+    └── labels
+        └── {labels same structure as images}
+
+
 ```
 
 If supercategory is in the ".json" file, it have to be written in "data.yaml" file too. Please see example below.
@@ -230,13 +230,13 @@ A sample zip file "example_datasets/voc.zip" is in this repository.
 │   │   └── {images or directories}
 │   └── labels
 │       └── {labels same structure as images}
-├── test
-│   ├── images
-│   │   └── {images or directories}
-│   └── labels
-│       └── {labels same structure as images}
-│
-└── data.yaml
+└── test
+    ├── images
+    │   └── {images or directories}
+    └── labels
+        └── {labels same structure as images}
+
+
 ```
 
 ## Make .zip file with dataset
@@ -269,3 +269,4 @@ Compare your '.zip' file with the images below.
 [convert2yololink]: https://github.com/ssaru/convert2Yolo
 [vocformat]: http://host.robots.ox.ac.uk/pascal/VOC/voc2007/
 [validationchecklist]: https://github.com/Nota-NetsPresso/NetsPresso-ModelSearch-Dataset-Validator/blob/main/validation_check_list.md
+[yaml_file]:https://github.com/Nota-NetsPresso/NetsPresso-ModelSearch-Dataset-Validator/tree/main#yaml-file-example
