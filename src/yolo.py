@@ -24,41 +24,57 @@ def validate_label_files(label_list: List[str], num_classes: int, errors:List[st
                 line_number += 1
                 label = l.split("\n")
                 values = label[0].split(" ")
-                if type(int(values[0])) != int:
+                if len(values) != 5: # Tag 1 -> prevent IndexError
                     errors.append(
-                        f"{ll} has wrong class number in line {line_number}."
+                        f"{ll} need more value in line {line_number}."
                         )
-                if len(values) != 5:
+                    continue # prevent for index error below with not matched error message.
+                try: # prevent TypeError
+                    values[0] = int(values[0])
+                except:
                     errors.append(
-                        f"{ll} need more coordinat value in line {line_number}."
+                        f"{ll} has non-acceptable class value in {line_number}."
                         )
-                if (int(values[0]) >= num_classes) or (int(values[0]) < 0):
+                if (values[0] >= num_classes) or (values[0] < 0):
                     errors.append(
                         f"{ll} has wrong class number {values[0]} in line {line_number}."
                         )
-                if len(values) != 5:
-                    errors.append(
-                        f"{ll} need more coordinat value in line {line_number}."
-                        )
                 else:
                     for i in range(len(values)):
-                        values[i] = float(values[i])
-                    if values[1] <= 0 or values[1] > 1: # center_x
-                        errors.append(
-                            f"{ll} has wrong coordinate 'center_x' {values[1]} in line {line_number}."
-                            )
-                    if values[2] <= 0 or values[2] > 1: # center_y
-                        errors.append(
-                            f"{ll} has wrong coordinate 'center_y' {values[2]} in line {line_number}."
-                            )
-                    if values[3] <= 0 or values[3] > 1: # width
-                        errors.append(
-                            f"{ll} has wrong coordinate 'width' {values[3]} in line {line_number}."
-                            )
-                    if values[4] <= 0 or values[4] > 1: # height
-                        errors.append(
-                            f"{ll} has wrong coordinate 'height' {values[4]} in line {line_number}."
-                            )
+                        try: # Tag 2 -> prevent TypeError
+                            values[i] = float(values[i])
+                        except:
+                            errors.append(
+                                f"{ll} has non-acceptable coordinate value in {line_number}."
+                                )
+                    try: # do try for in case of TypeError
+                        if values[1] <= 0 or values[1] > 1: # center_x
+                            errors.append(
+                                f"{ll} has wrong coordinate 'center_x' {values[1]} in line {line_number}."
+                                )
+                    except:
+                        pass # Error message for TypeError and IndexError added already in Tag 1&2
+                    try: # do try for in case of TypeError
+                        if values[2] <= 0 or values[2] > 1: # center_y
+                            errors.append(
+                                f"{ll} has wrong coordinate 'center_y' {values[2]} in line {line_number}."
+                                )
+                    except:
+                        pass # Error message for TypeError and IndexError added already in Tag 1&2
+                    try: # do try for in case of TypeError
+                        if values[3] <= 0 or values[3] > 1: # width
+                            errors.append(
+                                f"{ll} has wrong coordinate 'width' {values[3]} in line {line_number}."
+                                )
+                    except:
+                        pass # Error message for TypeError and IndexError added already in Tag 1&2
+                    try: # do try for in case of TypeError
+                        if values[4] <= 0 or values[4] > 1: # height
+                            errors.append(
+                                f"{ll} has wrong coordinate 'height' {values[4]} in line {line_number}."
+                                )
+                    except:
+                        pass # Error message for TypeError and IndexError added already in Tag 1&2
     return errors
 
 
