@@ -72,7 +72,10 @@ def get_label2id(label_list: List[str], num_classes: int)->Dict[str, int]:
     label2id = {}
     class_num = 1
     for l in label_list:
-        xml_obj = xml_load(l)
+        try:
+            xml_obj = xml_load(l)
+        except:
+            raise LabelException(f"{l} file is broken.")
         for obj in xml_obj.findall("object"):
             class_name = obj.findtext("name")
             # read class_name
@@ -84,16 +87,43 @@ def get_label2id(label_list: List[str], num_classes: int)->Dict[str, int]:
 
 def get_bbox_from_xml_obj(obj, label2id: Dict[str, str], anno: str, errors:List[str])->(int, int, int, int, List[str]):
     xml_file_name = Path(anno).parts[-1]
-    label = obj.findtext("name")
-    if not (label in label2id):
+    try:
+        label = obj.findtext("name")
+        if not (label in label2id):
+            errors.append(
+                f"{label} is not in data.yaml but in {anno} file."
+            )
+    except:
+        errors.append(f"Can not find <name> in {anno}.")
+    try:
+        bndbox = obj.find("bndbox")
+    except:
+        errors.append(f"Can not find <bndbox> in {anno}.")
+        return 0,0,0,0, errors
+    try:
+        xmin = int(float(bndbox.findtext("xmin")))
+    except:
         errors.append(
-            f"{label} is not in data.yaml but in {anno} file."
+            f"{bndbox.findtext('xmin')} is not a number in {anno} file."
         )
-    bndbox = obj.find("bndbox")
-    xmin = int(float(bndbox.findtext("xmin")))
-    ymin = int(float(bndbox.findtext("ymin")))
-    xmax = int(float(bndbox.findtext("xmax")))
-    ymax = int(float(bndbox.findtext("ymax")))
+    try:
+        ymin = int(float(bndbox.findtext("ymin")))
+    except:
+        errors.append(
+            f"{bndbox.findtext('ymin')} is not a number in {anno} file."
+        )
+    try:
+        xmax = int(float(bndbox.findtext("xmax")))
+    except:
+        errors.append(
+            f"{bndbox.findtext('xmax')} is not a number in {anno} file."
+        )
+    try:
+        ymax = int(float(bndbox.findtext("ymax")))
+    except:
+        errors.append(
+            f"{bndbox.findtext('ymax')} is not a number in {anno} file."
+        )                    
     return xmin, ymin, xmax, ymax, errors
 
 
@@ -190,22 +220,22 @@ def validate_image_files_exist(img_list: List[str], label_list: List[str], suffi
     return errors
 
 
-def validate_data_yaml(dir_path: str, num_classes: int, errors:List[str]):
+def validate_data_yaml(dir_path: str, errors:List[str]):
     yaml_path = Path(dir_path) / Path("data.yaml")
     if not yaml_path.is_file():
-        errors.append("There is no 'data.yaml' file.")
-    data_dict = yaml_safe_load(str(yaml_path))
+        raise YamlException("There is not 'data.yaml'.")
+    try:
+        data_dict = yaml_safe_load(str(yaml_path))
+    except:
+        raise YamlException("'data.yaml' file is broken.")
     if not data_dict.get("names"):
         raise YamlException("There is no 'names' in data.yaml.")
     if not data_dict.get("nc"):
         raise YamlException("There is no 'nc' in data.yaml.")
     if len(data_dict["names"]) != data_dict["nc"]:
         errors.append("Length of 'names' and value of 'nc' in data.yaml must be same.")
-    if num_classes != data_dict["nc"]:
-        errors.append("Value of 'nc' in data.yaml must be same with num_classes.")
-    if num_classes != len(data_dict["names"]):
-        errors.append("Length of 'names' in data.yaml must be same with num_classes.")
-    return data_dict['names'], errors
+    num_classes = max([len(data_dict["names"]), data_dict["nc"]])
+    return data_dict['names'], errors, num_classes
 
 
 def validate_dataset_type(root_path: str, user_data_type: str):
@@ -293,7 +323,7 @@ def write_error_txt(errors:List[str]):
     f.close()
 
 
-def validate(root_path: str, num_classes: int, data_format:str, delete=False):
+def validate(root_path: str, data_format:str, delete=False):
     print("Start dataset validation.")
     errors = []
     dir_path = Path(root_path)
@@ -304,7 +334,7 @@ def validate(root_path: str, num_classes: int, data_format:str, delete=False):
     validate_dataset_type(root_path, data_format)
     print("[Validate: 3/6]: Done validation, user select correct data type.")
     img_list, label_list = get_file_lists(dir_paths)
-    yaml_label, errors = validate_data_yaml(dir_path, num_classes, errors)
+    yaml_label, errors, num_classes = validate_data_yaml(dir_path, errors)
     print("[Validate: 4/6]: Done validation for 'data.yaml' file.")
     _validate = getattr(
         importlib.import_module(f"src.{data_format.lower()}"),

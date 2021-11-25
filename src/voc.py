@@ -26,11 +26,18 @@ def validate_label_files(
     errors: List[str]
 ):
     for anno in label_list:
-        xml_obj = xml_load(anno)
-        image_info = get_image_info_xml(xml_obj)
+        try:
+            xml_obj = xml_load(anno)
+            image_info = get_image_info_xml(xml_obj)
+        except:
+            errors.append(f"{anno} is broken file.")
+            return errors
         for obj in xml_obj.findall("object"):
+            if not obj:
+                errors.append(f"There is not object tag in {anno}.")
+                return errors
             xmin, ymin, xmax, ymax, errors = get_bbox_from_xml_obj(obj, label2id, anno, errors)
-            if xmax <= xmin or ymax <= ymin:
+            if (xmax <= xmin) or (ymax <= ymin):
                 errors.append(
                     f"Box size error in {anno}: (xmin, ymin, xmax, ymax): {xmin, ymin, xmax, ymax}."
                 )
@@ -42,22 +49,30 @@ def validate_label_files(
                 errors.append(
                     f"Box size error in {anno}: ymax: {ymax} is greater than 'height'."
                 )
-            if xmin <= 0:
+            if xmin < 0:
                 errors.append(
                     f"Box size error in {anno}: xmin: {xmin} is negative value."
                 )
-            if ymin <= 0:
+            if ymin < 0:
                 errors.append(
                     f"Box size error in {anno}: ymin: {ymin} is negative value."
                 )
-            if xmax <= 0:
+            if xmax < 0:
                 errors.append(
                     f"Box size error in {anno}: xmax: {xmax} is negative value."
                 )
-            if ymax <= 0:
+            if ymax < 0:
                 errors.append(
                     f"Box size error in {anno}: ymax: {ymax} is negative value."
                 )
+            if xmax == 0:
+                errors.append(
+                    f"Box size error in {anno}: xmax can not be 0."
+                )
+            if ymax == 0:
+                errors.append(
+                    f"Box size error in {anno}: ymax can not be 0."
+                )                
     return errors
 
 
@@ -74,6 +89,14 @@ def validate_yaml_names(yaml_label:List[str], label2id:Dict[str, int], num_class
     return errors
 
 
+def validate_label2id(label2id:Dict[str, int], errors:List[str]):
+    if label2id == {}:
+        errors.append("Can not find any class name information in any xml files.")
+        return False, errors
+    else:
+        return True, errors
+
+
 def validate(
     dir_path: str, 
     num_classes: int, 
@@ -83,6 +106,9 @@ def validate(
     errors:List[str]
     ):
     label2id = get_label2id(label_list, num_classes)
+    flag, errors = validate_label2id(label2id, errors)
+    if not flag:
+        return errors
     errors = validate_yaml_names(yaml_label, label2id, num_classes, errors)
     errors = validate_image_files_exist(img_list, label_list, "xml", errors)
     print("[Validate: 5/6]: Validation finished for existing image files in the correct position.")
