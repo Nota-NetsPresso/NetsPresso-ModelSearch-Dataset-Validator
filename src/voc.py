@@ -50,11 +50,11 @@ def validate_label_files(
                 errors.append(
                     f"Box size error in {anno}: ymin: {ymin} is negative value."
                 )
-            if xmax <= 0:
+            if xmax < 0:
                 errors.append(
                     f"Box size error in {anno}: xmax: {xmax} is negative value."
                 )
-            if ymax <= 0:
+            if ymax < 0:
                 errors.append(
                     f"Box size error in {anno}: ymax: {ymax} is negative value."
                 )
