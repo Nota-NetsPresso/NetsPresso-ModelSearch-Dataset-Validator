@@ -11,10 +11,9 @@ pip3 install -r requirements.txt
 Run the code sample below to validate if the data is ready-to-use. If you do not get any error message, you are all set! If error occurs, please refer to the error message to resolve the issue.
 - dir_path: Root directory path of your dataset
 - format: Format of your dataset
-- num_classes: Number of classes in your dataset
 ```
-# python3 run.py --dir {your_dataset_dir_path} --format {format_of_your_dataset} --num_classes {number_of_your_dataset_classes}
-python3 run.py --dir datasets/yolo --format yolo --num_classes 80
+# python3 run.py --dir {your_dataset_dir_path} --format {format_of_your_dataset}
+python3 run.py --dir datasets/yolo --format yolo
 ```
 ### Example of error message
 
