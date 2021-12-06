@@ -105,7 +105,6 @@ def get_bbox_from_xml_obj(obj, label2id: Dict[str, str], anno: str, errors:List[
     xmax, errors = try_convert_bbox2number(bndbox, "xmax", anno, errors)
     ymin, errors = try_convert_bbox2number(bndbox, "ymin", anno, errors)
     ymax, errors = try_convert_bbox2number(bndbox, "ymax", anno, errors)
-    
     return xmin, ymin, xmax, ymax, errors
 
 
@@ -200,6 +199,7 @@ def validate_image_files_exist(img_list: List[str], label_list: List[str], suffi
                 f"There is no image file for annotation file '{l}'"
             )
     return errors
+
 
 
 def validate_data_yaml(yaml_path: str, errors:List[str]):
@@ -304,7 +304,7 @@ def write_error_txt(errors:List[str]):
         f.write(e+"\n")
     f.close()
 
-
+    
 def validate(root_path: str, data_format:str, yaml_path:str, delete=False):
     print("Start dataset validation.")
     errors = []

@@ -9,6 +9,7 @@ pip3 install -r requirements.txt
 ```
 #### Run
 Run the code sample below to validate if the data is ready-to-use. If you do not get any error message, you are all set! If error occurs, please refer to the error message to resolve the issue.
+
 - dir_path: Root directory path of dataset.
 - format: Format of dataset.
 - yaml_path: Yaml file path with data set information. More information about yaml file is in [Prepare dataset yaml file][yaml_file]

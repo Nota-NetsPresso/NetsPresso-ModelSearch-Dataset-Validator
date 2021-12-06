@@ -85,6 +85,7 @@ def validate_coco_label(
             errors.append(
                 f"There is an image information without 'height' in 'images' where images['id'] is {img.get('id')} in file {json_file_name}."
             )
+
             image_flag = False
         elif type(img.get("height")) not in [int, float]:
             errors.append(
@@ -96,6 +97,7 @@ def validate_coco_label(
                 f"There is an image information with wrong 'height' value in 'images' where images['id'] is {img.get('id')} in file {json_file_name}."
             )
             image_flag = False
+
         if img.get("width") is None:
             errors.append(
                 f"There is an image information without 'width' in 'images' where images['id'] is {img.get('id')} in file {json_file_name}."
