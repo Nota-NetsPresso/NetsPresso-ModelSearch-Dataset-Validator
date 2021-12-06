@@ -1,18 +1,15 @@
 import glob
 import json
-import os
 import re
 import shutil
 import importlib
-import sys
 import xml.etree.ElementTree as ET
-import zipfile
-from pathlib import Path, PurePath, PurePosixPath
+from pathlib import Path
 from typing import Dict, List
 
 import yaml
 
-from src.exceptions import DatatypeException, YamlException
+from src.exceptions import DatatypeException, YamlException, LabelException
 
 
 def get_img_list(file_paths: str, img_list: List[str]) -> List[str]:
@@ -26,18 +23,12 @@ def get_img_list(file_paths: str, img_list: List[str]) -> List[str]:
 
 
 def get_label_list(file_paths: Path, label_list: List[str]) -> List[str]:
-    files = Path(file_paths).glob("**/*.txt")
-    for f in files:
-        if f.is_file():
-            label_list.append(str(f))
-    files = Path(file_paths).glob("**/*.json")
-    for f in files:
-        if f.is_file():
-            label_list.append(str(f))
-    files = Path(file_paths).glob("**/*.xml")
-    for f in files:
-        if f.is_file():
-            label_list.append(str(f))
+    glob_list = ["**/*.txt", "**/*.json", "**/*.xml"]
+    for g in glob_list:
+        files = Path(file_paths).glob(g)
+        for f in files:
+            if f.is_file():
+                label_list.append(str(f))
     return label_list
 
 
@@ -91,39 +82,29 @@ def get_bbox_from_xml_obj(obj, label2id: Dict[str, str], anno: str, errors:List[
         label = obj.findtext("name")
         if not (label in label2id):
             errors.append(
-                f"{label} is not in data.yaml but in {anno} file."
+                f"{label} is not in 'yaml file', but in {anno} file."
             )
     except:
         errors.append(f"Can not find <name> in {anno}.")
-    try:
-        bndbox = obj.find("bndbox")
-    except:
+    bndbox = obj.find("bndbox")
+    if not bndbox:
         errors.append(f"Can not find <bndbox> in {anno}.")
         return 0,0,0,0, errors
-    try:
-        xmin = int(float(bndbox.findtext("xmin")))
-    except:
-        errors.append(
-            f"{bndbox.findtext('xmin')} is not a number in {anno} file."
-        )
-    try:
-        ymin = int(float(bndbox.findtext("ymin")))
-    except:
-        errors.append(
-            f"{bndbox.findtext('ymin')} is not a number in {anno} file."
-        )
-    try:
-        xmax = int(float(bndbox.findtext("xmax")))
-    except:
-        errors.append(
-            f"{bndbox.findtext('xmax')} is not a number in {anno} file."
-        )
-    try:
-        ymax = int(float(bndbox.findtext("ymax")))
-    except:
-        errors.append(
-            f"{bndbox.findtext('ymax')} is not a number in {anno} file."
-        )                    
+
+    def try_convert_bbox2number(bndbox, coord_name:str, anno:str, errors:List[str])->int:
+        try:
+            ret = int(float(bndbox.findtext(coord_name)))
+        except:
+            errors.append(
+                f"{bndbox.findtext(coord_name)} is not a number in {anno} file."
+            )
+            ret = 0
+        return ret, errors
+    
+    xmin, errors = try_convert_bbox2number(bndbox, "xmin", anno, errors)
+    xmax, errors = try_convert_bbox2number(bndbox, "xmax", anno, errors)
+    ymin, errors = try_convert_bbox2number(bndbox, "ymin", anno, errors)
+    ymax, errors = try_convert_bbox2number(bndbox, "ymax", anno, errors)
     return xmin, ymin, xmax, ymax, errors
 
 
@@ -132,9 +113,9 @@ def get_image_info_xml(annotation_root, extract_num_from_imgid=True)->Dict[str, 
     if path is None:
         filename = annotation_root.findtext("filename")
     else:
-        filename = os.path.basename(path)
-    img_name = os.path.basename(filename)
-    img_id = os.path.splitext(img_name)[0]
+        filename = str(Path(path).parts[-1])
+    img_name = str(Path(filename).parts[-1])
+    img_id = str(Path(img_name).stem)
 
     if extract_num_from_imgid and isinstance(img_id, str):
         img_id = int(re.findall(r"\d+", img_id)[0])
@@ -189,7 +170,7 @@ def validate_second_dirs(dir_path: List[str], errors:List[str])->List[str]:
             errors.append(f"Dataset dosen't have 'images' dir under {sub_dir}.")
         if not ("labels" in check_dir_paths):
             errors.append(f"Dataset dosen't have 'labels' dir under {sub_dir}.")
-    return ret_dir_paths, errors
+    return errors
 
 
 def replace_images2labels(path: str)->str:
@@ -220,20 +201,21 @@ def validate_image_files_exist(img_list: List[str], label_list: List[str], suffi
     return errors
 
 
-def validate_data_yaml(dir_path: str, errors:List[str]):
-    yaml_path = Path(dir_path) / Path("data.yaml")
+
+def validate_data_yaml(yaml_path: str, errors:List[str]):
+    yaml_path = Path(yaml_path)
     if not yaml_path.is_file():
-        raise YamlException("There is not 'data.yaml'.")
+        raise YamlException(f"There is not {str(yaml_path)}")
     try:
         data_dict = yaml_safe_load(str(yaml_path))
     except:
-        raise YamlException("'data.yaml' file is broken.")
+        raise YamlException(f"{str(yaml_path)} file is broken.")
     if not data_dict.get("names"):
-        raise YamlException("There is no 'names' in data.yaml.")
+        raise YamlException(f"There is no 'names' in {str(yaml_path)}.")
     if not data_dict.get("nc"):
-        raise YamlException("There is no 'nc' in data.yaml.")
+        raise YamlException(f"There is no 'nc' in {str(yaml_path)}.")
     if len(data_dict["names"]) != data_dict["nc"]:
-        errors.append("Length of 'names' and value of 'nc' in data.yaml must be same.")
+        errors.append(f"Length of 'names' and value of 'nc' in {str(yaml_path)} must be same.")
     num_classes = max([len(data_dict["names"]), data_dict["nc"]])
     return data_dict['names'], errors, num_classes
 
@@ -322,20 +304,20 @@ def write_error_txt(errors:List[str]):
         f.write(e+"\n")
     f.close()
 
-
-def validate(root_path: str, data_format:str, delete=False):
+    
+def validate(root_path: str, data_format:str, yaml_path:str, delete=False):
     print("Start dataset validation.")
     errors = []
     dir_path = Path(root_path)
     dir_paths, errors = validate_first_dirs(dir_path, errors)
     print("[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].")
-    _, errors = validate_second_dirs(dir_paths, errors)
+    errors = validate_second_dirs(dir_paths, errors)
     print("[Validate: 2/6]: Done validation dir structure ['images', 'labels'].")
     validate_dataset_type(root_path, data_format)
     print("[Validate: 3/6]: Done validation, user select correct data type.")
     img_list, label_list = get_file_lists(dir_paths)
-    yaml_label, errors, num_classes = validate_data_yaml(dir_path, errors)
-    print("[Validate: 4/6]: Done validation for 'data.yaml' file.")
+    yaml_label, errors, num_classes = validate_data_yaml(yaml_path, errors)
+    print(f"[Validate: 4/6]: Done validation for {yaml_path} file.")
     _validate = getattr(
         importlib.import_module(f"src.{data_format.lower()}"),
         "validate",

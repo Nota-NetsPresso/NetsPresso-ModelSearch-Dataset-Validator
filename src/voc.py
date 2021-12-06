@@ -1,21 +1,10 @@
-import glob
-import os
-import shutil
-import sys
-import zipfile
-from pathlib import Path, PurePath, PurePosixPath
 from typing import Dict, List
 
 import yaml
 
-from src.utils import (get_bbox_from_xml_obj, get_file_lists,
-                                      get_image_info_xml, get_label2id,
-                                      replace_images2labels,
-                                      validate_data_yaml,
-                                      validate_dataset_type,
-                                      validate_first_dirs,
-                                      validate_image_files_exist,
-                                      validate_second_dirs, xml_load)
+from src.utils import (get_bbox_from_xml_obj, get_image_info_xml, 
+                       get_label2id, validate_image_files_exist,
+                       xml_load)
 
 
 def validate_label_files(
@@ -35,8 +24,28 @@ def validate_label_files(
         for obj in xml_obj.findall("object"):
             if not obj:
                 errors.append(f"There is not object tag in {anno}.")
-                return errors
+                continue
             xmin, ymin, xmax, ymax, errors = get_bbox_from_xml_obj(obj, label2id, anno, errors)
+            if not image_info["width"]:
+                errors.append(
+                    f"There is not width in {anno}."
+                )
+                continue
+            if not image_info["height"]:
+                errors.append(
+                    f"There is not height in {anno}."
+                )
+                continue
+            if type(image_info["width"]) not in [int, float]:
+                errors.append(
+                    f"'width' is not a number in {anno}."
+                )
+                continue
+            if type(image_info["height"]) not in [int, float]:
+                errors.append(
+                    f"'height' is not a number in {anno}."
+                )
+                continue
             if (xmax <= xmin) or (ymax <= ymin):
                 errors.append(
                     f"Box size error in {anno}: (xmin, ymin, xmax, ymax): {xmin, ymin, xmax, ymax}."
@@ -80,16 +89,18 @@ def validate_yaml_names(yaml_label:List[str], label2id:Dict[str, int], num_class
     for y in yaml_label:
         if y not in label2id.keys():
             errors.append(
-                f"{y} is not in xml files. Class names in 'data.yaml' have to match with xml files. Please check 'data.yaml' and xml files. Class names in xml files are {list(label2id.keys())}.")
+                f"{y} is not in xml files. Class names in 'yaml file' have to match with xml files. Please check 'yaml file' and xml files. Class names in xml files are {list(label2id.keys())}.")
 
     if len(label2id) != num_classes:
         errors.append(
-            f"'num_classes' is not matched with the number of classes in your datasets. The number of classes in dataset is {len(label2id)}. Class names in xml files are {list(label2id.keys())}."
+            f"'nc' is not matched with the number of classes in your datasets. The number of classes in dataset is {len(label2id)}. Class names in xml files are {list(label2id.keys())}."
         )
     return errors
 
 
 def validate_label2id(label2id:Dict[str, int], errors:List[str]):
+    if "None" in label2id.keys():
+        errors.append("There is xml file without <name> in it. Please read following error messages to fix it. In the message with 'None is not in 'yaml file'', there is broken file name.")
     if label2id == {}:
         errors.append("Can not find any class name information in any xml files.")
         return False, errors
@@ -114,5 +125,4 @@ def validate(
     print("[Validate: 5/6]: Validation finished for existing image files in the correct position.")
     errors = validate_label_files(img_list, label_list, num_classes, label2id, errors)
     print("[Validate: 6/6]: Validation finished for label files.")
-
     return errors
