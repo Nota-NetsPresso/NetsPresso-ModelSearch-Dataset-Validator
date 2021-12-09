@@ -174,9 +174,14 @@ def validate_second_dirs(dir_path: List[str], errors:List[str])->List[str]:
 
 
 def replace_images2labels(path: str)->str:
+    # for case of linux and mac user
     path = path.replace("train/images/", "train/labels/", 1)
     path = path.replace("val/images/", "val/labels/", 1)
     path = path.replace("test/images/", "test/labels/", 1)
+    # for case of windows user
+    path = path.replace("train\images", "train\labels", 1)
+    path = path.replace("val\images", "val\labels", 1)
+    path = path.replace("test\images", "test\labels", 1)
     return path
 
 
