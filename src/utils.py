@@ -311,7 +311,7 @@ def write_error_txt(errors:List[str]):
     f.close()
 
     
-def validate(root_path: str, data_format:str, yaml_path:str, delete=False):
+def validate(root_path: str, data_format:str, yaml_path:str, delete=False, online=True):
     logger.info("Start dataset validation.")
     errors = []
     dir_path = Path(root_path)
@@ -333,6 +333,9 @@ def validate(root_path: str, data_format:str, yaml_path:str, delete=False):
         logger.info("Validation completed! Now try your dataset on NetsPresso!")
     else:
         write_error_txt(errors)
-        logger.info("Validation error, please check 'validation_result.txt'.")
+        if online:
+            logger.info("Validation error, please visit 'https://github.com/Nota-NetsPresso/NetsPresso-ModelSearch-Dataset-Validator' and validate dataset.")
+        else:
+            logger.info("Validation error, please check 'validation_result.txt'.")
     if delete:
         delete_dirs(dir_path)
