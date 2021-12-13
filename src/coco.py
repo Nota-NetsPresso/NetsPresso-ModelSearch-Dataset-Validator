@@ -2,6 +2,7 @@ from typing import Dict, List
 from pathlib import Path
 
 import yaml
+from loguru import logger
 
 from src.utils import (json_load, get_dir_list,
                        get_img_file_types, get_target_dirs)
@@ -246,7 +247,7 @@ def validate(
     'img_list' and 'yaml_label' are not used in this function, but written for dynamic importing in src.utils.py
     """
     errors = validate_json_exist(dir_path, errors)
-    print("[Validate: 5/6]:  Validation finished for existing json files in the correct position.")
+    logger.info("[Validate: 5/6]:  Validation finished for existing json files in the correct position.")
     errors = validate_label_files(label_list, num_classes, errors)
-    print("[Validate: 6/6]: Validation finished for label files.")
+    logger.info("[Validate: 6/6]: Validation finished for label files.")
     return errors

@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 import yaml
+from loguru import logger
 
 from src.utils import validate_image_files_exist
 
@@ -79,7 +80,7 @@ def validate(
     errors:List[str]
 ):
     errors = validate_image_files_exist(img_list, label_list, "txt", errors)
-    print("[Validate: 5/6]: Validation finished for existing image files in the correct position.")
+    logger.info("[Validate: 5/6]: Validation finished for existing image files in the correct position.")
     errors = validate_label_files(label_list, num_classes, errors)
-    print("[Validate: 6/6]: Validation finished for label files.")
+    logger.info("[Validate: 6/6]: Validation finished for label files.")
     return errors

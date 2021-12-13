@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 import yaml
+from loguru import logger
 
 from src.utils import (get_bbox_from_xml_obj, get_image_info_xml, 
                        get_label2id, validate_image_files_exist,
@@ -122,7 +123,7 @@ def validate(
         return errors
     errors = validate_yaml_names(yaml_label, label2id, num_classes, errors)
     errors = validate_image_files_exist(img_list, label_list, "xml", errors)
-    print("[Validate: 5/6]: Validation finished for existing image files in the correct position.")
+    logger.info("[Validate: 5/6]: Validation finished for existing image files in the correct position.")
     errors = validate_label_files(img_list, label_list, num_classes, label2id, errors)
-    print("[Validate: 6/6]: Validation finished for label files.")
+    logger.info("[Validate: 6/6]: Validation finished for label files.")
     return errors
