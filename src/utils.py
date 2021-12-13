@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Dict, List
 
+from loguru import logger
 import yaml
 
 from src.exceptions import DatatypeException, YamlException, LabelException
@@ -311,27 +312,27 @@ def write_error_txt(errors:List[str]):
 
     
 def validate(root_path: str, data_format:str, yaml_path:str, delete=False):
-    print("Start dataset validation.")
+    logger.info("Start dataset validation.")
     errors = []
     dir_path = Path(root_path)
     dir_paths, errors = validate_first_dirs(dir_path, errors)
-    print("[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].")
+    logger.info("[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].")
     errors = validate_second_dirs(dir_paths, errors)
-    print("[Validate: 2/6]: Done validation dir structure ['images', 'labels'].")
+    logger.info("[Validate: 2/6]: Done validation dir structure ['images', 'labels'].")
     validate_dataset_type(root_path, data_format)
-    print("[Validate: 3/6]: Done validation, user select correct data type.")
+    logger.info("[Validate: 3/6]: Done validation, user select correct data type.")
     img_list, label_list = get_file_lists(dir_paths)
     yaml_label, errors, num_classes = validate_data_yaml(yaml_path, errors)
-    print(f"[Validate: 4/6]: Done validation for {yaml_path} file.")
+    logger.info(f"[Validate: 4/6]: Done validation for {yaml_path} file.")
     _validate = getattr(
         importlib.import_module(f"src.{data_format.lower()}"),
         "validate",
     )
     errors = _validate(dir_path, num_classes, label_list, img_list, yaml_label, errors)
     if len(errors) == 0:
-        print("Validation completed! Now try your dataset on NetsPresso!")
+        logger.info("Validation completed! Now try your dataset on NetsPresso!")
     else:
         write_error_txt(errors)
-        print("Validation error, please check 'validation_result.txt'.")
+        logger.info("Validation error, please check 'validation_result.txt'.")
     if delete:
         delete_dirs(dir_path)
