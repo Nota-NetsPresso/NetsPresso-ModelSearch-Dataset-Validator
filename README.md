@@ -78,6 +78,9 @@ There is no image file for annotation file 'yolo/test/labels/000000000337.txt'
 NetsPresso supports YOLO, COCO, and VOC formats for object detection tasks. (YOLO format is recommended.)
 There are labeling tools, such as [CVAT][cvatlink] and [labelimg][labelimglink] support these annotation formats.
 
+## Supported image file types
+'bmp', 'jpg', 'jpeg', 'png', 'tif', 'tiff', 'dng', 'webp', 'mpo' are supported.
+
 ### Prepare dataset yaml file
 Regardless of the dataset format, "data.yaml" file containing information about the class name and number of classes is needed.
 - names: Names of classes

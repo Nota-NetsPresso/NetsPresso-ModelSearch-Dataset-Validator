@@ -300,6 +300,16 @@ def get_img_file_types()->List[str]:
         "*.PNG",
         "*.BMP",
         "*.bmp",
+        "*.TIF",
+        "*.tif",
+        "*.TIFF",
+        "*.tiff",
+        "*.DNG",
+        "*.dng",
+        "*.WEBP",
+        "*.webp",
+        "*.mpo",
+        "*.MPO"
     ]
     return img_file_types
 
