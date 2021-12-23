@@ -83,20 +83,36 @@ There are labeling tools, such as [CVAT][cvatlink] and [labelimg][labelimglink] 
 
 ### Prepare dataset yaml file
 Regardless of the dataset format, "data.yaml" file containing information about the class name and number of classes is needed.
+- For the coco data form, all elements of the names must be written in the same number order as category_id of the dataset.
+- For the voc data form, all elements of the names must be written alphabetically.
+- For the yolo data form, all elements of the names must be written in the same class number as the dataset.
 - names: Names of classes
 - nc: Number of classes
 
 #### Yaml file example
 ```
 names:
-- fish
-- jellyfish
-- penguin
-- puffin
-- shark
-- starfish
-- stingray
-nc: 7
+- aeroplane
+- bicycle
+- bird
+- boat
+- bottle
+- bus
+- car
+- cat
+- chair
+- cow
+- diningtable
+- dog
+- horse
+- motorbike
+- person
+- pottedplant
+- sheep
+- sofa
+- train
+- tvmonitor
+nc: 20
 ```
 
 ### [YOLO] Dataset structure example
@@ -247,13 +263,15 @@ A sample zip file "example_datasets/voc.zip" is in this repository.
 After validate data, make the '.zip' file like below.
 
 #### Windows
-![windows](https://user-images.githubusercontent.com/45225793/141430930-361439f0-5bb6-48ec-a86b-149c6a182527.gif)
+![windows](https://user-images.githubusercontent.com/45225793/147207463-42f9cfa1-5df0-42b0-9ae3-e5b0d4f82b9a.gif)
+
 
 #### Mac and Linux
 ```
 zip -r {Dataset zip file name}.zip {Dataset diretory path} -x ".*" -x "__MACOSX"
 ```
-![mac](https://user-images.githubusercontent.com/45225793/141430922-9a765546-1cea-4c6f-b6e2-ad391b49c735.gif)
+![Dec-23-2021 16-45-20](https://user-images.githubusercontent.com/45225793/147207491-a006af63-d774-4238-82dc-4161b9de2ded.gif)
+
 
 Compare your '.zip' file with the images below.
 
@@ -262,9 +280,7 @@ Compare your '.zip' file with the images below.
 <p align="center"><img src="https://user-images.githubusercontent.com/69490987/141053041-18a2b5f3-c6c0-4a8a-8785-1a4bc20bcecc.png"></p>
 
 #### Wrong case
-<p align="center"><img src="https://user-images.githubusercontent.com/45225793/142646291-9121cac2-c905-494a-8ad5-f2756326612b.png"></p>
-
-
+![101db6f-wrong_case](https://user-images.githubusercontent.com/45225793/147207512-ffc8178f-c203-4a91-b1af-40d24976d3f8.png)
 
 
 [cocoformat]: https://cocodataset.org/#format-data
