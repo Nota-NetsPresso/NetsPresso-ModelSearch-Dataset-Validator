@@ -1,9 +1,10 @@
 from typing import Dict, List
 from pathlib import Path
+import sys
 
 import yaml
 from loguru import logger
-
+sys.path.append("app/core/validator")
 from src.utils import (json_load, get_dir_list,
                        get_img_file_types, get_target_dirs)
 

@@ -1,8 +1,8 @@
 from typing import Dict, List
+import sys
 
-import yaml
 from loguru import logger
-
+sys.path.append("app/core/validator")
 from src.utils import (get_bbox_from_xml_obj, get_image_info_xml, 
                        get_label2id, validate_image_files_exist,
                        xml_load)
