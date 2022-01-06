@@ -1,8 +1,9 @@
 from typing import Dict, List
+import sys
 
 import yaml
 from loguru import logger
-
+sys.path.append("app/core/validator")
 from src.utils import validate_image_files_exist
 
 
