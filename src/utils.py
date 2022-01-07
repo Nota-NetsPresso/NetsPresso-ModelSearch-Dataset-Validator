@@ -10,12 +10,8 @@ from typing import Dict, List
 from loguru import logger
 import yaml
 
-FILE = Path(__file__).resolve()
-ROOT = FILE.parents[0]  # validator root directory
-if str(ROOT) not in sys.path:
-    sys.path.append(str(ROOT))  # add ROOT to PATH
 sys.path.append("app/core/validator")
-from .exceptions import DatatypeException, YamlException, LabelException
+from src.exceptions import DatatypeException, YamlException, LabelException
 
 
 def get_img_list(file_paths: str, img_list: List[str]) -> List[str]:
