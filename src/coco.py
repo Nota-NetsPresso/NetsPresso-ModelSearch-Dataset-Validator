@@ -243,7 +243,9 @@ def validate(
     label_list:List[str], 
     img_list:None,
     yaml_label:None,
-    errors:List[str]):
+    errors:List[str],
+    fix:bool=False # not used but be here for other dataset type
+):
     """
     'img_list' and 'yaml_label' are not used in this function, but written for dynamic importing in src.utils.py
     """

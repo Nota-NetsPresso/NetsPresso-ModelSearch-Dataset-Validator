@@ -9,7 +9,7 @@ from src.utils import validate_image_files_exist
 
 
 def validate_label_files(
-    label_list: List[str], num_classes: int, errors: List[str], fix: bool = True
+    label_list: List[str], num_classes: int, errors: List[str], fix: bool = False
 ):
     for ll in label_list:
         with open(ll, "r") as f:
@@ -100,7 +100,7 @@ def validate(
     img_list: List[str],
     yaml_path: None,
     errors: List[str],
-    fix: bool,
+    fix: bool=False,
 ):
     errors = validate_image_files_exist(img_list, label_list, "txt", errors)
     logger.info(

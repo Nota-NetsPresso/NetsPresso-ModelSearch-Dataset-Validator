@@ -115,7 +115,8 @@ def validate(
     label_list:List[str], 
     img_list:List[str], 
     yaml_label:List[str],
-    errors:List[str]
+    errors:List[str],
+    fix:bool=False # not used but be here for other dataset type
     ):
     label2id = get_label2id(label_list, num_classes)
     flag, errors = validate_label2id(label2id, errors)
