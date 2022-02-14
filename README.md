@@ -74,6 +74,12 @@ There is no image file for annotation file 'yolo/train/labels/000000000025.txt'
 There is no image file for annotation file 'yolo/test/labels/000000000337.txt'
 ```
 
+#### Validation autofix for yolo format.
+In the case of yolo format, when the valuation fails, the dataset can be partially modified using the autofix. Autofix is to delete the row if there is an inappropriate value in the annotation file. When executing run.py, it can be executed by adding ‘--fix’ config as true. 
+```
+PYTHONPATH=. python3 run.py --fix true --dir datasets/yolo --format yolo --yaml_path datasets/data.yaml
+```
+
 ## Dataset structure for NetsPresso
 NetsPresso supports YOLO, COCO, and VOC formats for object detection tasks. (YOLO format is recommended.)
 There are labeling tools, such as [CVAT][cvatlink] and [labelimg][labelimglink] support these annotation formats.
