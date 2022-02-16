@@ -2,11 +2,10 @@ from typing import Dict, List
 from pathlib import Path
 import sys
 
-import yaml
 from loguru import logger
 sys.path.append("app/core/validator")
 from src.utils import (json_load, get_dir_list,
-                       get_img_file_types, get_target_dirs)
+                       get_img_file_types, get_target_dirs, log_n_print)
 
 
 def validate_coco_bbox(
@@ -244,13 +243,13 @@ def validate(
     img_list:None,
     yaml_label:None,
     errors:List[str],
-    fix:bool=False # not used but be here for other dataset type
+    fix:bool=False, # not used but be here for other dataset type
 ):
     """
     'img_list' and 'yaml_label' are not used in this function, but written for dynamic importing in src.utils.py
     """
     errors = validate_json_exist(dir_path, errors)
-    logger.info("[Validate: 5/6]:  Validation finished for existing json files in the correct position.")
+    log_n_print("[Validate: 5/6]:  Validation finished for existing json files in the correct position.")
     errors = validate_label_files(label_list, num_classes, errors)
-    logger.info("[Validate: 6/6]: Validation finished for label files.")
+    log_n_print("[Validate: 6/6]: Validation finished for label files.")
     return errors

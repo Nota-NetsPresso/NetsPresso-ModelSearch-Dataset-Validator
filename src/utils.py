@@ -323,6 +323,13 @@ def write_error_txt(errors: List[str]):
     f.close()
 
 
+def log_n_print(message:str):
+    if not LOCAL:
+        logger.debug(message)
+    else:
+        print(message)
+
+
 def validate(
     root_path: str,
     data_format: str,
@@ -330,27 +337,28 @@ def validate(
     delete=False,
     online=True,
     fix=False,
+    local=False # True for local run, False for BE run.
 ):
-    logger.info("Start dataset validation.")
-    logger.info("=========================")
-    logger.info(f"data path: {root_path}")
-    logger.info(f"data format: {data_format}")
-    logger.info(f"yaml path: {yaml_path}")
-    logger.info(f"autofix: {fix}")
-    logger.info("=========================")
+    global LOCAL
+    LOCAL = local
+    log_n_print("Start dataset validation.")
+    log_n_print("=========================")
+    log_n_print(f"data path: {root_path}")
+    log_n_print(f"data format: {data_format}")
+    log_n_print(f"yaml path: {yaml_path}")
+    log_n_print(f"autofix: {fix}")
+    log_n_print("=========================")
     errors = []
     dir_path = Path(root_path)
     dir_paths, errors = validate_first_dirs(dir_path, errors)
-    logger.info(
-        "[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test']."
-    )
+    log_n_print("[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].")
     errors = validate_second_dirs(dir_paths, errors)
-    logger.info("[Validate: 2/6]: Done validation dir structure ['images', 'labels'].")
+    log_n_print("[Validate: 2/6]: Done validation dir structure ['images', 'labels'].")
     validate_dataset_type(root_path, data_format)
-    logger.info("[Validate: 3/6]: Done validation, user select correct data type.")
+    log_n_print("[Validate: 3/6]: Done validation, user select correct data type.")
     img_list, label_list = get_file_lists(dir_paths)
     yaml_label, errors, num_classes = validate_data_yaml(yaml_path, errors)
-    logger.info(f"[Validate: 4/6]: Done validation for {yaml_path} file.")
+    log_n_print(f"[Validate: 4/6]: Done validation for {yaml_path} file.")
     _validate = getattr(
         importlib.import_module(f"src.{data_format.lower()}"),
         "validate",
@@ -359,14 +367,14 @@ def validate(
         dir_path, num_classes, label_list, img_list, yaml_label, errors, fix
     )
     if len(errors) == 0:
-        logger.info("Validation completed! Now try your dataset on NetsPresso!")
+        log_n_print("Validation completed! Now try your dataset on NetsPresso!")
     else:
         write_error_txt(errors)
         if online:
-            logger.info(
+            log_n_print(
                 "Validation error, please visit 'https://github.com/Nota-NetsPresso/NetsPresso-ModelSearch-Dataset-Validator' and validate dataset."
-            )
+                )
         else:
-            logger.info("Validation error, please check 'validation_result.txt'.")
+            log_n_print("Validation error, please check 'validation_result.txt'.")
     if delete:
         delete_dirs(dir_path)

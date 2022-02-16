@@ -15,4 +15,4 @@ if __name__ == "__main__":
         args.yaml_path,
         args.fix,
     )
-    validate(dir_path, dataset_type, yaml_path, online=False, fix=fix)
+    validate(dir_path, dataset_type, yaml_path, online=False, fix=fix, local=True)
