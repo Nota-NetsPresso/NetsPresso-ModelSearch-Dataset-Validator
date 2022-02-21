@@ -330,24 +330,12 @@ def log_n_print(message:str):
         print(message)
 
 
-def validate(
+def validate_detection_task(
     root_path: str,
     data_format: str,
     yaml_path: str,
-    delete=False,
-    online=True,
     fix=False,
-    local=False # True for local run, False for BE run.
 ):
-    global LOCAL
-    LOCAL = local
-    log_n_print("Start dataset validation.")
-    log_n_print("=========================")
-    log_n_print(f"data path: {root_path}")
-    log_n_print(f"data format: {data_format}")
-    log_n_print(f"yaml path: {yaml_path}")
-    log_n_print(f"autofix: {fix}")
-    log_n_print("=========================")
     errors = []
     dir_path = Path(root_path)
     dir_paths, errors = validate_first_dirs(dir_path, errors)
@@ -365,16 +353,64 @@ def validate(
     )
     errors = _validate(
         dir_path, num_classes, label_list, img_list, yaml_label, errors, fix
-    )
+        )
+
+    return errors
+
+
+def validate_classification_task(
+    root_path: str,
+    data_format: str,
+    yaml_path: str,
+    ):
+    errors = []
+    dir_path = Path(root_path)
+    dir_paths, errors = validate_first_dirs(dir_path, errors)
+    log_n_print("[Validate: 1/4]: Done validation dir structure ['train', 'val', 'test'].")
+    yaml_label, errors, _ = validate_data_yaml(yaml_path, errors)
+    log_n_print(f"[Validate: 2/4]: Done validation for {yaml_path} file.")
+    _validate = getattr(
+        importlib.import_module(f"src.{data_format.lower()}"),
+        "validate",
+        )
+    errors = _validate(
+        yaml_label, dir_paths, errors
+        )
+    return errors
+
+def validate(
+    root_path: str,
+    data_format: str,
+    yaml_path: str,
+    task: str="detection",
+    delete=False,
+    fix=False,
+    local=False # True for local run, False for BE run.
+):
+    global LOCAL
+    LOCAL = local
+    log_n_print("Start dataset validation.")
+    log_n_print("=========================")
+    log_n_print(f"data path: {root_path}")
+    log_n_print(f"data format: {data_format}")
+    log_n_print(f"yaml path: {yaml_path}")
+    log_n_print(f"autofix: {fix}")
+    log_n_print("=========================")
+    
+    if task == "detection":
+        errors = validate_detection_task(root_path, data_format, yaml_path)
+    elif task == "classification":
+        errors = validate_classification_task(root_path, data_format, yaml_path)
+
     if len(errors) == 0:
         log_n_print("Validation completed! Now try your dataset on NetsPresso!")
     else:
         write_error_txt(errors)
-        if online:
+        if local:
+            log_n_print("Validation error, please check 'validation_result.txt'.")
+        else:
             log_n_print(
                 "Validation error, please visit 'https://github.com/Nota-NetsPresso/NetsPresso-ModelSearch-Dataset-Validator' and validate dataset."
                 )
-        else:
-            log_n_print("Validation error, please check 'validation_result.txt'.")
     if delete:
-        delete_dirs(dir_path)
+        delete_dirs(Path(root_path))
