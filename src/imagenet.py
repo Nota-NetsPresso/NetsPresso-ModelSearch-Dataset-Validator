@@ -38,8 +38,8 @@ def validate(
     errors: List[str],
 ):
     errors = validate_classes(dir_paths, label_list, errors)
-    log_n_print("[Validate: 3/4]: Validation finished for matching classes of yaml file and image folders.")
+    log_n_print("[Validate: 2/3]: Validation finished for matching classes of yaml file and image folders.")
     errors = validate_img_file_type(dir_paths, errors)
-    log_n_print("[Validate: 4/4]: Validation finished for image file types.")
+    log_n_print("[Validate: 3/3]: Validation finished for image file types.")
 
     return errors

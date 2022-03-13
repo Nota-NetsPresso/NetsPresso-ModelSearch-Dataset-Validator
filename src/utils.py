@@ -14,6 +14,10 @@ sys.path.append("app/core/validator")
 from src.exceptions import DatatypeException, YamlException, LabelException
 
 
+global LOCAL
+LOCAL=False
+
+
 def get_img_list(file_paths: str, img_list: List[str]) -> List[str]:
     img_file_types = get_img_file_types()
     for types in img_file_types:
@@ -34,14 +38,15 @@ def get_label_list(file_paths: Path, label_list: List[str]) -> List[str]:
     return label_list
 
 
-def get_file_lists(dir_paths: str) -> (List[str], List[str]):
-    file_count = 0
+def get_file_lists(dir_path: str):
+    """
+    Return image and label file list in form List[str], List[str]
+    """
     img_list = []
     label_list = []
-    for p in dir_paths:
-        p = Path(p)
-        label_list = get_label_list(p, label_list)
-        img_list = get_img_list(p, img_list)
+    p = Path(dir_path)
+    label_list = get_label_list(p, label_list)
+    img_list = get_img_list(p, img_list)
     return sorted(img_list), sorted(label_list)
 
 
@@ -137,43 +142,62 @@ def xml_load(xml_path: str):
     annotation_root = tree.getroot()
     return annotation_root
 
+# Not used function
+# def validate_first_dirs(dir_path: str, errors: List[str]) -> List[str]:
+#     """
+#     Validate if dir_path has directory other than ['train', 'val', 'test'].
+#     """
+#     paths = Path(dir_path).glob("*")
+#     check_dir_paths = []
+#     ret_dir_paths = []
+#     for p in paths:
+#         if p.is_dir():
+#             check_dir_paths.append(str(p.name))
+#             ret_dir_paths.append(str(p))
+#     if not ("train" in check_dir_paths):
+#         errors.append("Dataset dosen't have 'train' dir.")
+#         return ret_dir_paths, errors
+#     correct_cases = [
+#         set(["train", "val", "test"]),
+#         set(["train", "val"]),
+#         set(["train", "test"]),
+#     ]
+#     if set(check_dir_paths) not in correct_cases:
+#         errors.append(
+#             "Dataset has wrong directory structure. Any other directory than ['train', 'val', 'test'] is not accepted in first depth."
+#         )
+#     return ret_dir_paths, errors
 
-def validate_first_dirs(dir_path: str, errors: List[str]) -> List[str]:
+# Not used function
+# def validate_second_dirs(dir_path: List[str], errors: List[str]) -> List[str]:
+#     ret_dir_paths = []
+#     for sub_dir in dir_path:
+#         paths = Path(sub_dir).glob("*")
+#         check_dir_paths = []
+#         for p in paths:
+#             if p.is_dir():
+#                 check_dir_paths.append(str(p.name))
+#                 ret_dir_paths.append(str(p))
+#         if not ("images" in check_dir_paths):
+#             errors.append(f"Dataset dosen't have 'images' dir under {sub_dir}.")
+#         if not ("labels" in check_dir_paths):
+#             errors.append(f"Dataset dosen't have 'labels' dir under {sub_dir}.")
+#     return errors
+
+
+def validate_second_dir(dir_path: Path, errors: List[str]) -> List[str]:
+    """
+    Validate dir_path has 'images' and 'labels' dir or not.
+    """
     paths = Path(dir_path).glob("*")
     check_dir_paths = []
-    ret_dir_paths = []
     for p in paths:
         if p.is_dir():
             check_dir_paths.append(str(p.name))
-            ret_dir_paths.append(str(p))
-    if not ("train" in check_dir_paths):
-        errors.append("Dataset dosen't have 'train' dir.")
-        return ret_dir_paths, errors
-    correct_cases = [
-        set(["train", "val", "test"]),
-        set(["train", "val"]),
-        set(["train", "test"]),
-    ]
-    if set(check_dir_paths) not in correct_cases:
-        errors.append(
-            "Dataset has wrong directory structure. Any other directory than ['train', 'val', 'test'] is not accepted in first depth."
-        )
-    return ret_dir_paths, errors
-
-
-def validate_second_dirs(dir_path: List[str], errors: List[str]) -> List[str]:
-    ret_dir_paths = []
-    for sub_dir in dir_path:
-        paths = Path(sub_dir).glob("*")
-        check_dir_paths = []
-        for p in paths:
-            if p.is_dir():
-                check_dir_paths.append(str(p.name))
-                ret_dir_paths.append(str(p))
-        if not ("images" in check_dir_paths):
-            errors.append(f"Dataset dosen't have 'images' dir under {sub_dir}.")
-        if not ("labels" in check_dir_paths):
-            errors.append(f"Dataset dosen't have 'labels' dir under {sub_dir}.")
+    if not ("images" in check_dir_paths):
+        errors.append(f"Dataset dosen't have 'images' dir under {dir_path}.")
+    if not ("labels" in check_dir_paths):
+        errors.append(f"Dataset dosen't have 'labels' dir under {dir_path}.")
     return errors
 
 
@@ -234,22 +258,20 @@ def validate_dataset_type(root_path: str, user_data_type: str):
     """
     data_type in ["coco", "yolo", "voc"]
     """
-    target_dirs = ["train/labels/", "val/labels/", "test/labels/"]
     data_type = None
-    for td in target_dirs:
-        paths = (Path(root_path) / td).glob("**/*")
-        for p in paths:
-            suffix = str(p.suffix)
-            if suffix == ".xml":
-                data_type = "voc"
-            if suffix == ".txt":
-                data_type = "yolo"
-                break
-            if suffix == ".json":
-                data_type = "coco"
-                break
+    paths = Path(root_path).glob("**/*")
+    for p in paths:
+        suffix = str(p.suffix)
+        if suffix == ".xml":
+            data_type = "voc"
+        if suffix == ".txt":
+            data_type = "yolo"
+            break
+        if suffix == ".json":
+            data_type = "coco"
+            break
     if not data_type:
-        raise DatatypeException(f"There are not any annotation files in {td}.")
+        raise DatatypeException(f"There are not any annotation files in {root_path}.")
     elif user_data_type != data_type:
         raise DatatypeException(
             f"Check correct data type, your dataset type looks like '{data_type}'."
@@ -338,15 +360,13 @@ def validate_detection_task(
 ):
     errors = []
     dir_path = Path(root_path)
-    dir_paths, errors = validate_first_dirs(dir_path, errors)
-    log_n_print("[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].")
-    errors = validate_second_dirs(dir_paths, errors)
-    log_n_print("[Validate: 2/6]: Done validation dir structure ['images', 'labels'].")
+    errors = validate_second_dir(dir_path, errors)
+    log_n_print("[Validate: 1/5]: Done validation dir structure ['images', 'labels'].")
     validate_dataset_type(root_path, data_format)
-    log_n_print("[Validate: 3/6]: Done validation, user select correct data type.")
-    img_list, label_list = get_file_lists(dir_paths)
+    log_n_print("[Validate: 2/5]: Done validation, user select correct data type.")
+    img_list, label_list = get_file_lists(dir_path)
     yaml_label, errors, num_classes = validate_data_yaml(yaml_path, errors)
-    log_n_print(f"[Validate: 4/6]: Done validation for {yaml_path} file.")
+    log_n_print(f"[Validate: 3/5]: Done validation for {yaml_path} file.")
     _validate = getattr(
         importlib.import_module(f"src.{data_format.lower()}"),
         "validate",
@@ -365,16 +385,16 @@ def validate_classification_task(
     ):
     errors = []
     dir_path = Path(root_path)
-    dir_paths, errors = validate_first_dirs(dir_path, errors)
-    log_n_print("[Validate: 1/4]: Done validation dir structure ['train', 'val', 'test'].")
+    #dir_paths, errors = validate_first_dirs(dir_path, errors)
+    #log_n_print("[Validate: 1/4]: Done validation dir structure ['train', 'val', 'test'].")
     yaml_label, errors, _ = validate_data_yaml(yaml_path, errors)
-    log_n_print(f"[Validate: 2/4]: Done validation for {yaml_path} file.")
+    log_n_print(f"[Validate: 1/3]: Done validation for {yaml_path} file.")
     _validate = getattr(
         importlib.import_module(f"src.{data_format.lower()}"),
         "validate",
         )
     errors = _validate(
-        yaml_label, dir_paths, errors
+        yaml_label, dir_path, errors
         )
     return errors
 
@@ -385,9 +405,8 @@ def validate(
     task: str="detection",
     delete=False,
     fix=False,
-    local=False # True for local run, False for BE run.
+    local=True # True for local run, False for BE run.
 ):
-    global LOCAL
     LOCAL = local
     log_n_print("Start dataset validation.")
     log_n_print("=========================")
@@ -401,7 +420,6 @@ def validate(
         errors = validate_detection_task(root_path, data_format, yaml_path)
     elif task == "classification":
         errors = validate_classification_task(root_path, data_format, yaml_path)
-
     if len(errors) == 0:
         log_n_print("Validation completed! Now try your dataset on NetsPresso!")
     else:
