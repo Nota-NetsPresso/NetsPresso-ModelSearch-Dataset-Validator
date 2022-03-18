@@ -123,7 +123,7 @@ def validate(
         return errors
     errors = validate_yaml_names(yaml_label, label2id, num_classes, errors)
     errors = validate_image_files_exist(img_list, label_list, "xml", errors)
-    log_n_print("[Validate: 5/6]: Validation finished for existing image files in the correct position.")
+    log_n_print("[Validate: 4/5]: Validation finished for existing image files in the correct position.")
     errors = validate_label_files(img_list, label_list, num_classes, label2id, errors)
-    log_n_print("[Validate: 6/6]: Validation finished for label files.")
+    log_n_print("[Validate: 5/5]: Validation finished for label files.")
     return errors

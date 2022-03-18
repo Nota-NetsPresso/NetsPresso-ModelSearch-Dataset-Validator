@@ -15,20 +15,19 @@ Run the code sample below to validate if the data is ready-to-use. If you do not
 - yaml_path: Yaml file path with data set information. More information about yaml file is in [Prepare dataset yaml file][yaml_file]
 ```
 # PYTHONPATH=. python3 run.py --dir {dataset_dir_path} --format {format_of_dataset} --yaml_path {yaml_file_path}
-PYTHONPATH=. python3 run.py --dir datasets/yolo --format yolo --yaml_path datasets/data.yaml
+PYTHONPATH=. python3 run.py --dir datasets/yolo/train --format yolo --yaml_path datasets/data.yaml
 ```
 ### Example of error message
 
 #### Validation success case
 ```
-netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --format yolo --yaml_path data.yaml
+netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo/train --format yolo --yaml_path data.yaml
 Start dataset validation.
-[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].
-[Validate: 2/6]: Done validation dir structure ['images', 'labels'].
-[Validate: 3/6]: Done validation, user select correct data type.
-[Validate: 4/6]: Done validation for data.yaml file.
-[Validate: 5/6]: Done validation for exsisting images files in correct position.
-[Validate: 6/6]: Done validation for each label files.
+[Validate: 1/5]: Done validation dir structure ['images', 'labels'].
+[Validate: 2/5]: Done validation, user select correct data type.
+[Validate: 3/5]: Done validation for data.yaml file.
+[Validate: 4/5]: Validation finished for existing image files in the correct position.
+[Validate: 5/5]: Validation finished for label files.
 Validation completed! Now try your dataset on NetsPresso!
 ```
 
@@ -37,11 +36,11 @@ For more detail, please see [Validation check list][validationchecklist]
 
 In case of validation fail with traceback, please read exception error message.
 ```
-netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --format yolo --yaml_path data.yaml
+netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo/train --format yolo --yaml_path data.yaml
 Start dataset validation.
-[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].
-[Validate: 2/6]: Done validation dir structure ['images', 'labels'].
-[Validate: 3/6]: Done validation, user select correct data type.
+[Validate: 1/5]: Done validation dir structure ['images', 'labels'].
+[Validate: 2/5]: Done validation, user select correct data type.
+[Validate: 3/5]: Done validation for data.yaml file.
 Traceback (most recent call last):
   File "run.py", line 13, in <module>
     validate(dir_path, num_classes, dataset_type)
@@ -53,22 +52,16 @@ src.exceptions.YamlException: There is no 'names' in data.yaml.
 ```
 In case of validation fail with **Validation error, please check 'validation_result.txt'.**, please check validation_result.txt file to resolve failure.
 ```
-netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo --format yolo --yaml_path data.yaml
+netspresso@netspresso:~/NetsPresso-ModelSearch-Dataset-Validator$ PYTHONPATH=. python3 run.py --dir yolo/train --format yolo --yaml_path data.yaml
 Start dataset validation.
-[Validate: 1/6]: Done validation dir structure ['train', 'val', 'test'].
-[Validate: 2/6]: Done validation dir structure ['images', 'labels'].
-[Validate: 3/6]: Done validation, user select correct data type.
-[Validate: 4/6]: Done validation for data.yaml file.
-[Validate: 5/6]: Done validation for exsisting images files in correct position.
-[Validate: 6/6]: Done validation for each label files.
+[Validate: 1/5]: Done validation dir structure ['images', 'labels'].
+[Validate: 2/5]: Done validation, user select correct data type.
+[Validate: 3/5]: Done validation for data.yaml file.
+[Validate: 4/5]: Validation finished for existing image files in the correct position.
+[Validate: 5/5]: Validation finished for label files.
 Validation error, please check 'validation_result.txt'.
 ```
 And contents of 'validation_result.txt are like below.
-```
-Dataset dosen't have 'train' dir.
-Dataset has directory other than ['train', 'val', 'test'] in first depth.
-```
-or
 ```
 There is no image file for annotation file 'yolo/train/labels/000000000025.txt'
 There is no image file for annotation file 'yolo/test/labels/000000000337.txt'
@@ -77,7 +70,7 @@ There is no image file for annotation file 'yolo/test/labels/000000000337.txt'
 #### Validation autofix for yolo format.
 In the case of yolo format, when the valuation fails, the dataset can be partially modified using the autofix. Autofix is to delete the row if there is an inappropriate value in the annotation file. When executing run.py, it can be executed by adding ‘--fix’ config as true. 
 ```
-PYTHONPATH=. python3 run.py --fix true --dir datasets/yolo --format yolo --yaml_path datasets/data.yaml
+PYTHONPATH=. python3 run.py --fix true --dir datasets/yolo/train --format yolo --yaml_path datasets/data.yaml
 ```
 
 ## Dataset structure for NetsPresso
@@ -124,38 +117,25 @@ nc: 20
 ### [YOLO] Dataset structure example
 YOLO format has one '.txt' file per image with the same file name. If there is no object in the image file, no '.txt' file is required for the image. Make sure that every '.txt' file requires a corresponding image file.
 
-For training, a "train" directory and at least one of "val" and "test" directories must exist in the dataset. A nested directory under images or labels is also allowed.
+A nested directory under images or labels is also allowed.
 
-A sample zip file "example_datasets/yolo.zip" is in this repository.
+A sample zip file "example_datasets/yolo/train.zip" is in this repository.
 ```
-{Your dataset dir}
-├── train
-│   ├── images
-│   │   ├── {images or directories}
-│   │   ├── example_1.jpg
-│   │   └── example_2.jpg
-│   │   └── sub_dir
-│   │       ├── example_1.jpg
-│   │       └── example_2.jpg
-│   └── labels
-│       ├── {labels same structure as images}
-│       ├── example_1.txt
-│       └── example_2.txt
-│       └── sub_dir
-│           ├── example_1.txt
-│           └── example_2.txt
-├── val
-│   ├── images
-│   │   └── {images or directories}
-│   └── labels
-│       └── {labels same structure as images}
-└── test
-    ├── images
-    │   └── {images or directories}
-    └── labels
-        └── {labels same structure as images}
-
-
+{train}
+   ├── images
+   │   ├── {images or directories}
+   │   ├── example_1.jpg
+   │   ├── example_2.jpg
+   │   └── sub_dir
+   │       ├── example_1.jpg
+   │       └── example_2.jpg
+   └── labels
+       ├── {labels same structure as images}
+       ├── example_1.txt
+       ├── example_2.txt
+       └── sub_dir
+           ├── example_1.txt
+           └── example_2.txt
 ```
 
 ### Dataset file example for YOLO format
@@ -173,35 +153,24 @@ Please refer to the official [COCO Data format][cocoformat] for COCO label forma
 
 COCO format has all images in {images} folder and a single '.json' file with annotations in {labels} folder. If you split data into multiple sets, each set should have its own directory and a '.json' file.
 
-For training, a "train" directory and at least one of "val" and "test" directories must exist in the dataset. A nested directory under images or labels is also allowed.
+A nested directory under images or labels is also allowed.
 
-A sample zip file "example_datasets/coco.zip" is in this repository.
+A sample zip file "example_datasets/coco/train.zip" is in this repository.
 ```
-{Your dataset dir}
-├── train
-│   ├── images
-│   │   ├── {images or directories}
-│   │   ├── example_1.jpg
-│   │   ├── example_2.jpg
-│   │   └── sub_dir
-│   │       ├── example_1.jpg
-│   │       └── example_2.jpg
-│   └── labels
-│       ├── {labels same structure as images}
-│       ├── example.json (contain annotaion of images in "train/images/")
-│       └── sub_dir
-│           └── example.json (contain annotaion of images in "train/images/sub_dir/")
-├── val
-│   ├── images
-│   │   └── {images or directories}
-│   └── labels
-│       └── {labels same structure as images}
-└── test
-    ├── images
-    │   └── {images or directories}
-    └── labels
-        └── {labels same structure as images}
 
+{train}
+   ├── images
+   │   ├── {images or directories}
+   │   ├── example_1.jpg
+   │   ├── example_2.jpg
+   │   └── sub_dir
+   │       ├── example_1.jpg
+   │       └── example_2.jpg
+   └── labels
+       ├── {labels same structure as images}
+       ├── example.json (contain annotaion of images in "train/images/")
+       └── sub_dir
+           └── example.json (contain annotaion of images in "train/images/sub_dir/")
 
 ```
 
@@ -231,38 +200,25 @@ If supercategory is in the ".json" file, it have to be written in "data.yaml" fi
 VOC format has one '.xml' file per image with the same file name. If there is no object in an image, no '.xml' file is required for the image. Make sure that every '.txt' file requires a corresponding image file.
 Please refer to the official [VOC Data format][vocformat] for VOC label format.
 
-For training, all "train", "val", "test" directories must exist in the dataset. A nested directory under images or labels is also allowed.
+A nested directory under images or labels is also allowed.
 
-A sample zip file "example_datasets/voc.zip" is in this repository.
+A sample zip file "example_datasets/train.zip" is in this repository.
 ```
-{Your dataset dir}
-├── train
-│   ├── images
-│   │   ├── {images or directories}
-│   │   ├── example_1.jpg
-│   │   └── example_2.jpg
-│   │   └── sub_dir
-│   │       ├── example_1.jpg
-│   │       └── example_2.jpg
-│   └── labels
-│       ├── {labels same structure as images}
-│       ├── example_1.xml
-│       └── example_2.xml
-│       └── sub_dir
-│           ├── example_1.xml
-│           └── example_2.xml
-├── val
-│   ├── images
-│   │   └── {images or directories}
-│   └── labels
-│       └── {labels same structure as images}
-└── test
-    ├── images
-    │   └── {images or directories}
-    └── labels
-        └── {labels same structure as images}
-
-
+{train}
+   ├── images
+   │   ├── {images or directories}
+   │   ├── example_1.jpg
+   │   ├── example_2.jpg
+   │   └── sub_dir
+   │       ├── example_1.xml
+   │       └── example_2.xml
+   └── labels
+       ├── {labels same structure as images}
+       ├── example_1.txt
+       ├── example_2.txt
+       └── sub_dir
+           ├── example_1.xml
+           └── example_2.xml
 ```
 
 ## Make .zip file with dataset

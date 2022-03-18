@@ -249,7 +249,7 @@ def validate(
     'img_list' and 'yaml_label' are not used in this function, but written for dynamic importing in src.utils.py
     """
     errors = validate_json_exist(dir_path, errors)
-    log_n_print("[Validate: 5/6]:  Validation finished for existing json files in the correct position.")
+    log_n_print("[Validate: 4/5]:  Validation finished for existing json files in the correct position.")
     errors = validate_label_files(label_list, num_classes, errors)
-    log_n_print("[Validate: 6/6]: Validation finished for label files.")
+    log_n_print("[Validate: 5/5]: Validation finished for label files.")
     return errors
