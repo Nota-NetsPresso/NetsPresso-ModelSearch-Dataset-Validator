@@ -116,12 +116,11 @@ nc: 20
 
 ### [YOLO] Dataset structure example
 YOLO format has one '.txt' file per image with the same file name. If there is no object in the image file, no '.txt' file is required for the image. Make sure that every '.txt' file requires a corresponding image file.
-
+To train a model, a "train" dataset and at least one of "val" and "test" dataset must exist and uploaded.
 A nested directory under images or labels is also allowed.
-
-A sample zip file "example_datasets/yolo/train.zip" is in this repository.
+A sample zip files are in this repository "example_datasets/".
 ```
-{train}
+{root_dir}
    ├── images
    │   ├── {images or directories}
    │   ├── example_1.jpg
@@ -152,13 +151,11 @@ A sample zip file "example_datasets/yolo/train.zip" is in this repository.
 Please refer to the official [COCO Data format][cocoformat] for COCO label format.
 
 COCO format has all images in {images} folder and a single '.json' file with annotations in {labels} folder. If you split data into multiple sets, each set should have its own directory and a '.json' file.
-
+To train a model, a "train" dataset and at least one of "val" and "test" dataset must exist and uploaded.
 A nested directory under images or labels is also allowed.
-
-A sample zip file "example_datasets/coco/train.zip" is in this repository.
+A sample zip files are in this repository "example_datasets/".
 ```
-
-{train}
+{root_dir}
    ├── images
    │   ├── {images or directories}
    │   ├── example_1.jpg
@@ -171,7 +168,6 @@ A sample zip file "example_datasets/coco/train.zip" is in this repository.
        ├── example.json (contain annotaion of images in "train/images/")
        └── sub_dir
            └── example.json (contain annotaion of images in "train/images/sub_dir/")
-
 ```
 
 If supercategory is in the ".json" file, it have to be written in "data.yaml" file too. Please see example below.
@@ -199,23 +195,22 @@ If supercategory is in the ".json" file, it have to be written in "data.yaml" fi
 ### [VOC] Dataset structure example
 VOC format has one '.xml' file per image with the same file name. If there is no object in an image, no '.xml' file is required for the image. Make sure that every '.txt' file requires a corresponding image file.
 Please refer to the official [VOC Data format][vocformat] for VOC label format.
-
+To train a model, a "train" dataset and at least one of "val" and "test" dataset must exist and uploaded.
 A nested directory under images or labels is also allowed.
-
-A sample zip file "example_datasets/train.zip" is in this repository.
+A sample zip files are in this repository "example_datasets/".
 ```
-{train}
+{root_dir}
    ├── images
    │   ├── {images or directories}
    │   ├── example_1.jpg
    │   ├── example_2.jpg
    │   └── sub_dir
-   │       ├── example_1.xml
-   │       └── example_2.xml
+   │       ├── example_1.jpg
+   │       └── example_2.jpg
    └── labels
        ├── {labels same structure as images}
-       ├── example_1.txt
-       ├── example_2.txt
+       ├── example_1.xml
+       ├── example_2.xml
        └── sub_dir
            ├── example_1.xml
            └── example_2.xml
