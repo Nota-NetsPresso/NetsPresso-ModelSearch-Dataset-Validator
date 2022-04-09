@@ -86,8 +86,8 @@ def validate_label_files(
 
 
 def validate_yaml_names(yaml_label:List[str], label2id:Dict[str, int], num_classes:int, errors:List[str]):
-    for y in yaml_label:
-        if y not in label2id.keys():
+    for y in label2id.keys():
+        if y not in yaml_label:
             errors.append(
                 f"{y} is not in xml files. Class names in 'yaml file' have to match with xml files. Please check 'yaml file' and xml files. Class names in xml files are {list(label2id.keys())}.")
 
