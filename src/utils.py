@@ -405,7 +405,7 @@ def validate(
     task: str="detection",
     delete=False,
     fix=False,
-    local=True # True for local run, False for BE run.
+    local=False # True for local run, False for BE run.
 ):
     LOCAL = local
     log_n_print("Start dataset validation.")
