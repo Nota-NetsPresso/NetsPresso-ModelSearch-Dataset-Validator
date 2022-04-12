@@ -220,24 +220,24 @@ A sample zip files are in this repository "example_datasets/".
 After validate data, make the '.zip' file like below.
 
 #### Windows
-![windows](https://user-images.githubusercontent.com/45225793/147207463-42f9cfa1-5df0-42b0-9ae3-e5b0d4f82b9a.gif)
+![windows](https://user-images.githubusercontent.com/69490987/162886468-db1ca951-9770-4c42-a37f-61f452c1b957.gif)
 
 
 #### Mac and Linux
 ```
 zip -r {Dataset zip file name}.zip {Dataset diretory path} -x ".*" -x "__MACOSX"
 ```
-![Dec-23-2021 16-45-20](https://user-images.githubusercontent.com/45225793/147207491-a006af63-d774-4238-82dc-4161b9de2ded.gif)
+![Dec-23-2021 16-45-20](https://user-images.githubusercontent.com/69490987/162886518-e6becf1b-14af-4cf5-a9f1-510c4f516003.gif)
 
 
 Compare your '.zip' file with the images below.
 
 #### Correct case
 
-<p align="center"><img src="https://user-images.githubusercontent.com/69490987/141053041-18a2b5f3-c6c0-4a8a-8785-1a4bc20bcecc.png"></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/69490987/162886538-71ac03ac-b82b-4fa3-8065-948e31356bf2.png"></p>
 
 #### Wrong case
-![101db6f-wrong_case](https://user-images.githubusercontent.com/45225793/147207512-ffc8178f-c203-4a91-b1af-40d24976d3f8.png)
+![101db6f-wrong_case](https://user-images.githubusercontent.com/69490987/162886544-4160d1bb-a25a-4131-af07-8c63fc676d5f.png)
 
 
 [cocoformat]: https://cocodataset.org/#format-data
