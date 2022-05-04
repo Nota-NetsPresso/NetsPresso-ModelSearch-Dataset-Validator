@@ -124,17 +124,11 @@ A sample zip files are in this repository "example_datasets/".
    ├── images
    │   ├── {images or directories}
    │   ├── example_1.jpg
-   │   ├── example_2.jpg
-   │   └── sub_dir
-   │       ├── example_1.jpg
-   │       └── example_2.jpg
+   │   └── example_2.jpg
    └── labels
        ├── {labels same structure as images}
        ├── example_1.txt
-       ├── example_2.txt
-       └── sub_dir
-           ├── example_1.txt
-           └── example_2.txt
+       └── example_2.txt
 ```
 
 ### Dataset file example for YOLO format
@@ -159,15 +153,10 @@ A sample zip files are in this repository "example_datasets/".
    ├── images
    │   ├── {images or directories}
    │   ├── example_1.jpg
-   │   ├── example_2.jpg
-   │   └── sub_dir
-   │       ├── example_1.jpg
-   │       └── example_2.jpg
+   │   └── example_2.jpg
    └── labels
        ├── {labels same structure as images}
-       ├── example.json (contain annotaion of images in "train/images/")
-       └── sub_dir
-           └── example.json (contain annotaion of images in "train/images/sub_dir/")
+       └── example.json (contain annotaion of images in "train/images/")
 ```
 
 If supercategory is in the ".json" file, it have to be written in "data.yaml" file too. Please see example below.
@@ -203,17 +192,11 @@ A sample zip files are in this repository "example_datasets/".
    ├── images
    │   ├── {images or directories}
    │   ├── example_1.jpg
-   │   ├── example_2.jpg
-   │   └── sub_dir
-   │       ├── example_1.jpg
-   │       └── example_2.jpg
+   │   └── example_2.jpg
    └── labels
        ├── {labels same structure as images}
        ├── example_1.xml
-       ├── example_2.xml
-       └── sub_dir
-           ├── example_1.xml
-           └── example_2.xml
+       └── example_2.xml
 ```
 
 ## Make .zip file with dataset
@@ -234,7 +217,7 @@ Compare your '.zip' file with the images below.
 
 #### Correct case
 
-<p align="center"><img src="https://user-images.githubusercontent.com/69490987/162886538-71ac03ac-b82b-4fa3-8065-948e31356bf2.png"></p>
+<img src="https://user-images.githubusercontent.com/69490987/162886538-71ac03ac-b82b-4fa3-8065-948e31356bf2.png">
 
 #### Wrong case
 ![101db6f-wrong_case](https://user-images.githubusercontent.com/69490987/162886544-4160d1bb-a25a-4131-af07-8c63fc676d5f.png)
