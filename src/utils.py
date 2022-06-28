@@ -7,6 +7,10 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Dict, List
 
+import zipfile
+
+import os
+import glob
 from loguru import logger
 import yaml
 
@@ -203,14 +207,9 @@ def validate_second_dir(dir_path: Path, errors: List[str]) -> List[str]:
 
 def replace_images2labels(path: str) -> str:
     # for case of linux and mac user
-    path = path.replace("train/images/", "train/labels/", 1)
-    path = path.replace("val/images/", "val/labels/", 1)
-    path = path.replace("test/images/", "test/labels/", 1)
-    # for case of windows user
-    path = path.replace("train\images", "train\labels", 1)
-    path = path.replace("val\images", "val\labels", 1)
-    path = path.replace("test\images", "test\labels", 1)
-    return path
+    key = os.path.splitext(os.path.basename(path))[0]
+
+    return key
 
 
 def get_filename_wo_suffix(file_path: str):
@@ -228,7 +227,7 @@ def validate_image_files_exist(
         path_wo_suffix = replace_images2labels(path_wo_suffix)
         img_name += [path_wo_suffix]
     for l in label_list:
-        label_name = get_filename_wo_suffix(l)
+        label_name = replace_images2labels(get_filename_wo_suffix(l))
         if not label_name in img_name:
             errors.append(f"There is no image file for annotation file '{l}'")
     return errors
@@ -337,6 +336,14 @@ def get_img_file_types() -> List[str]:
     ]
     return img_file_types
 
+def get_annotation_file_types():
+    annotation_file_types =[
+      "*.xml",
+      "*.txt",
+      "*.json"
+    ]
+    return annotation_file_types
+
 
 def write_error_txt(errors: List[str]):
     f = open("validation_result.txt", "w")
@@ -422,6 +429,7 @@ def validate(
         errors = validate_classification_task(root_path, data_format, yaml_path)
     if len(errors) == 0:
         log_n_print("Validation completed! Now try your dataset on NetsPresso!")
+        return True
     else:
         write_error_txt(errors)
         if local:
@@ -430,5 +438,50 @@ def validate(
             log_n_print(
                 "Validation error, please visit 'https://github.com/Nota-NetsPresso/NetsPresso-ModelSearch-Dataset-Validator' and validate dataset."
                 )
+        return False
+
     if delete:
         delete_dirs(Path(root_path))
+
+
+
+
+
+
+def structure_convert(data_dir):
+    tmp_dir = os.path.join(data_dir, 'tmp')
+    os.mkdir(tmp_dir)
+    images_dir = os.path.join(tmp_dir, 'images')
+    os.mkdir(images_dir)
+    labels_dir = os.path.join(tmp_dir, 'labels')
+    os.mkdir(labels_dir)
+
+    image_file_types = get_img_file_types()
+    image_files = []
+    for img_ext in image_file_types:
+        image_files += glob.glob(f"{data_dir}/{img_ext}")
+
+    for img in image_files:
+        shutil.copy(img, os.path.join(images_dir,os.path.basename(img)))
+    
+    annotation_file_types = get_annotation_file_types()
+    annotation_files = []
+    for anno_ext in annotation_file_types:
+        annotation_files += glob.glob(f"{data_dir}/{anno_ext}")
+
+    for anno in annotation_files:
+        shutil.copy(anno, os.path.join(labels_dir, os.path.basename(anno)))
+
+    return tmp_dir
+
+
+    
+def zip_packing(root_path, filename):
+    zip_file = zipfile.ZipFile(f"{filename}", "w")
+    for (path, dir, files) in os.walk(root_path):
+        for file in files:
+            file_path = os.path.join(path, file)
+            rel_path = os.path.relpath(file_path, root_path)
+            zip_file.write(file_path, rel_path, compress_type=zipfile.ZIP_DEFLATED)
+
+    zip_file.close()
