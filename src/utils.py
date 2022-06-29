@@ -14,6 +14,7 @@ import glob
 from loguru import logger
 import yaml
 
+
 sys.path.append("app/core/validator")
 from src.exceptions import DatatypeException, YamlException, LabelException
 
@@ -410,7 +411,6 @@ def validate(
     data_format: str,
     yaml_path: str,
     task: str="detection",
-    delete=False,
     fix=False,
     local=False # True for local run, False for BE run.
 ):
@@ -440,15 +440,37 @@ def validate(
                 )
         return False
 
-    if delete:
-        delete_dirs(Path(root_path))
+
+
+def get_class_info_coco(annotation_file):
+    with open(annotation_file, 'r') as anno_file:
+        anno = anno_file.read()
+
+    anno_dict = json.loads(anno)
+    categories = anno_dict["categories"]
+    names = [cat["name"] for cat in categories]
+    
+    return names
+
+
+def get_class_info_voc(annotation_file):
+    xml_root = xml_load(annotation_file)
+    object_eles = xml_root.findall("object")
+    name_eles = []
+    for obj in object_eles:
+        name_eles += obj.findall("name")
+    
+    names = [n.text for n in name_eles]
+
+    return names
 
 
 
 
+def structure_convert(data_dir, format):
+    if not format in ["coco", "voc"]:
+        raise Exception("not valid format")
 
-
-def structure_convert(data_dir):
     tmp_dir = os.path.join(data_dir, 'tmp')
     os.mkdir(tmp_dir)
     images_dir = os.path.join(tmp_dir, 'images')
@@ -469,10 +491,17 @@ def structure_convert(data_dir):
     for anno_ext in annotation_file_types:
         annotation_files += glob.glob(f"{data_dir}/{anno_ext}")
 
+    names = []
     for anno in annotation_files:
-        shutil.copy(anno, os.path.join(labels_dir, os.path.basename(anno)))
+        if format == "coco":
+            names += get_class_info_coco(anno)
+        elif format == "voc":
+            names += get_class_info_voc(anno)
 
-    return tmp_dir
+        shutil.copy(anno, os.path.join(labels_dir, os.path.basename(anno)))
+    names = set(names)
+
+    return tmp_dir, names
 
 
     
@@ -485,3 +514,12 @@ def zip_packing(root_path, filename):
             zip_file.write(file_path, rel_path, compress_type=zipfile.ZIP_DEFLATED)
 
     zip_file.close()
+
+
+def make_yaml_file(names, output_path):
+    nc = len(names)
+    names = list(names)
+
+    with open(output_path, 'w') as f:
+        yaml.dump({'nc': nc, 'names': names}, f)
+    

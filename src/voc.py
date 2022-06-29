@@ -129,3 +129,5 @@ def validate(
     errors = validate_label_files(img_list, label_list, num_classes, label2id, errors)
     log_n_print("[Validate: 5/5]: Validation finished for label files.")
     return errors
+
+
