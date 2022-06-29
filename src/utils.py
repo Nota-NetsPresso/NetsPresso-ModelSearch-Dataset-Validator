@@ -13,6 +13,7 @@ import os
 import glob
 from loguru import logger
 import yaml
+import hashlib
 
 
 sys.path.append("app/core/validator")
@@ -513,4 +514,11 @@ def make_yaml_file(names, output_path):
     names = list(names)
     with open(output_path, 'w') as f:
         yaml.dump({'nc': nc, 'names': names}, f)
+
+
+def calc_file_hash(path):
+    f = open(path, 'rb')
+    data = f.read()
+    hash = hashlib.md5(data).hexdigest()
     
+    return hash
