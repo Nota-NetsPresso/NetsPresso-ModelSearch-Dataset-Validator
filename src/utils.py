@@ -445,7 +445,6 @@ def validate(
 def get_class_info_coco(annotation_file):
     with open(annotation_file, 'r') as anno_file:
         anno = anno_file.read()
-
     anno_dict = json.loads(anno)
     categories = anno_dict["categories"]
     names = [cat["name"] for cat in categories]
@@ -459,12 +458,9 @@ def get_class_info_voc(annotation_file):
     name_eles = []
     for obj in object_eles:
         name_eles += obj.findall("name")
-    
     names = [n.text for n in name_eles]
 
     return names
-
-
 
 
 def structure_convert(data_dir, format):
@@ -482,7 +478,6 @@ def structure_convert(data_dir, format):
     image_files = []
     for img_ext in image_file_types:
         image_files += glob.glob(f"{data_dir}/{img_ext}")
-
     for img in image_files:
         shutil.copy(img, os.path.join(images_dir,os.path.basename(img)))
     
@@ -490,19 +485,16 @@ def structure_convert(data_dir, format):
     annotation_files = []
     for anno_ext in annotation_file_types:
         annotation_files += glob.glob(f"{data_dir}/{anno_ext}")
-
     names = []
     for anno in annotation_files:
         if format == "coco":
             names += get_class_info_coco(anno)
         elif format == "voc":
             names += get_class_info_voc(anno)
-
         shutil.copy(anno, os.path.join(labels_dir, os.path.basename(anno)))
     names = set(names)
 
     return tmp_dir, names
-
 
     
 def zip_packing(root_path, filename):
@@ -519,7 +511,6 @@ def zip_packing(root_path, filename):
 def make_yaml_file(names, output_path):
     nc = len(names)
     names = list(names)
-
     with open(output_path, 'w') as f:
         yaml.dump({'nc': nc, 'names': names}, f)
     
