@@ -424,7 +424,7 @@ def validate(
     log_n_print(f"autofix: {fix}")
     log_n_print("=========================")
     
-    if task == "detection":
+    if task == "object_detection":
         errors = validate_detection_task(root_path, data_format, yaml_path)
     elif task == "classification":
         errors = validate_classification_task(root_path, data_format, yaml_path)
