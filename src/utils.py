@@ -6,7 +6,7 @@ import importlib
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Dict, List
-
+from functools import reduce
 import zipfile
 
 import os
@@ -464,6 +464,95 @@ def get_class_info_voc(annotation_file):
     return names
 
 
+def get_object_stat(annotation_file, format):
+    if format == "coco":
+        return get_object_stat_coco(annotation_file)
+    
+
+def get_object_stat_coco(annotation_file):
+    with open(annotation_file, 'r') as anno_file:
+        anno = anno_file.read()
+    anno_dict = json.loads(anno)
+    categories = anno_dict["categories"]
+    categories_dict = {ele["id"]: ele["name"] for ele in categories}
+    annotations = anno_dict["annotations"]
+    stat_dict = {}
+    for ele in categories_dict:
+        stat_dict[ele] = 0
+
+    for anno in annotations:
+        stat_dict[anno["category_id"]] += 1
+    
+    ret = {}
+    for ele in stat_dict:
+        ret[categories_dict[ele]] = stat_dict[ele]
+    print(ret)
+    return ret
+
+def get_object_stat_voc(annotation_file):
+    xml_root = xml_load(annotation_file)
+    object_eles = xml_root.findall("object")
+    obj_stat = {}
+    for obj in object_eles:
+        for obj_name in obj.findall("name"):
+            obj_name_text = obj_name.text
+            if obj_name_text in obj_stat:
+                obj_stat[obj_name_text] += 1
+            else:
+                obj_stat[obj_name_text] = 1
+    return obj_stat
+
+
+def get_object_stat_yolo(annotation_file, names):
+    with open(annotation_file, 'r') as anno_file:
+        anno = anno_file.readlines()
+    ret = {}
+    for row in anno:
+        class_name = names[int(row.split(' ')[0])]
+        if class_name in ret:
+            ret[class_name] += 1
+        else:
+            ret[class_name] = 1
+    
+    return ret
+    
+
+
+def yolo_stat(data_path, yaml_path):
+    with open(yaml_path, 'r') as data_yaml:
+        data_dict = yaml.load(data_yaml.read(), Loader=yaml.FullLoader)
+
+    image_file_types = get_img_file_types()
+    image_files = []
+    for img_ext in image_file_types:
+        image_files += glob.glob(f"{data_path}/{img_ext}")
+    num_images = len(image_files)
+    names = data_dict["names"]
+
+    annotation_file_types = get_annotation_file_types()
+    annotation_files = []
+    for anno_ext in annotation_file_types:
+        annotation_files += glob.glob(f"{data_path}/labels/{anno_ext}")
+    obj_stat = []
+    for anno in annotation_files:
+        obj_stat.append(get_object_stat_yolo(anno, names))
+    
+    names = set(names)
+    obj_stat_ret = reduce(sum_stat_dict, obj_stat)
+
+    return names, obj_stat_ret, num_images
+        
+
+def sum_stat_dict(dict_a, dict_b):
+    ret = {}
+    for ele in set(dict_a.keys()).union(set(dict_b.keys())):
+        ret[ele] = \
+            int(0 if dict_a.get(ele) is None else dict_a.get(ele)) + \
+            int(0 if dict_b.get(ele) is None else dict_b.get(ele))
+    
+    return ret
+
+
 def structure_convert(data_dir, format):
     if not format in ["coco", "voc"]:
         raise Exception("not valid format")
@@ -479,6 +568,7 @@ def structure_convert(data_dir, format):
     image_files = []
     for img_ext in image_file_types:
         image_files += glob.glob(f"{data_dir}/{img_ext}")
+    num_images = len(image_files)
     for img in image_files:
         shutil.copy(img, os.path.join(images_dir,os.path.basename(img)))
     
@@ -487,15 +577,19 @@ def structure_convert(data_dir, format):
     for anno_ext in annotation_file_types:
         annotation_files += glob.glob(f"{data_dir}/{anno_ext}")
     names = []
+    obj_stat = []
     for anno in annotation_files:
         if format == "coco":
             names += get_class_info_coco(anno)
+            obj_stat.append(get_object_stat_coco(anno))
         elif format == "voc":
             names += get_class_info_voc(anno)
+            obj_stat.append(get_object_stat_voc(anno))
         shutil.copy(anno, os.path.join(labels_dir, os.path.basename(anno)))
     names = set(names)
+    obj_stat_ret = reduce(sum_stat_dict, obj_stat)
 
-    return tmp_dir, names
+    return tmp_dir, names, obj_stat_ret, num_images
 
     
 def zip_packing(root_path, filename):
@@ -509,11 +603,12 @@ def zip_packing(root_path, filename):
     zip_file.close()
 
 
-def make_yaml_file(names, output_path):
+def make_yaml_file(names, output_path, num_images, obj_stat):
     nc = len(names)
     names = list(names)
+
     with open(output_path, 'w') as f:
-        yaml.dump({'nc': nc, 'names': names}, f)
+        yaml.dump({'nc': nc, 'names': names, 'num_images': num_images, 'obj_stat': obj_stat}, f)
 
 
 def calc_file_hash(path):
@@ -522,3 +617,5 @@ def calc_file_hash(path):
     hash = hashlib.md5(data).hexdigest()
     
     return hash
+
+
