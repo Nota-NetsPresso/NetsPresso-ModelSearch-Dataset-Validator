@@ -4,7 +4,9 @@ import shutil
 import os
 import yaml
 
-def main(dir_path, format, task, data_type, yaml_path=None):
+def main(dir_path, format, task, data_type, yaml_path=None, output_dir=None):
+    if output_dir is None:
+        output_dir = "."
     if format == "yolo" and yaml_path is None:
         raise Exception("yaml_path should be defined for yolo format ")
 
@@ -18,7 +20,7 @@ def main(dir_path, format, task, data_type, yaml_path=None):
     temp_yaml_path = os.path.join(tmp_path, "temp_yaml.yaml")
     make_yaml_file(temp_yaml_path, yaml_content)
     succeed = validate(tmp_path, format, temp_yaml_path, task)
-    zip_file_path = f"./{data_type}.zip"
+    zip_file_path = f"{output_dir}/{data_type}.zip"
     
     if succeed:
         zip_packing(tmp_path, zip_file_path)
@@ -40,25 +42,28 @@ if __name__ == "__main__":
     parser.add_argument("--train_dir", type=str, required=True, help="train dataset path.")
     parser.add_argument("--test_dir", type=str, required=False, help="test dataset path.")
     parser.add_argument("--valid_dir", type=str, required=False, help="validation dataset path.")
+    parser.add_argument("--output_dir", type=str, required=False, help="output directory")
     args = parser.parse_args()
 
-    format, task, yaml_path, train_dir, test_dir, valid_dir= (
+    format, task, yaml_path, train_dir, test_dir, valid_dir, output_dir= (
         args.format.lower(),
         args.task.lower(),
         args.yaml_path,
         args.train_dir,
         args.test_dir,
-        args.valid_dir
+        args.valid_dir,
+        args.output_dir.rstrip('/')
     )
+    os.makedirs(output_dir, exist_ok=True)
 
     if test_dir is None and valid_dir is None:
         raise Exception("At least one of test_dir or valid_dir should be specified")
 
-    train_zip_path, train_yaml, train_md5 = main(train_dir, format, task, "train", yaml_path) # train
+    train_zip_path, train_yaml, train_md5 = main(train_dir, format, task, "train", yaml_path, output_dir) # train
     if test_dir :
-        test_zip_path, test_yaml, test_md5 = main(test_dir, format, task, "test", yaml_path) # test
+        test_zip_path, test_yaml, test_md5 = main(test_dir, format, task, "test", yaml_path, output_dir) # test
     if valid_dir :
-        valid_zip_path, valid_yaml, valid_md5 = main(valid_dir, format, task, "valid", yaml_path) # valid
+        valid_zip_path, valid_yaml, valid_md5 = main(valid_dir, format, task, "valid", yaml_path, output_dir) # valid
 
     yaml_all = {}
     yaml_all["nc"] = train_yaml["nc"]
@@ -76,5 +81,5 @@ if __name__ == "__main__":
     if valid_dir :
         md5_all["valid"] = valid_md5
     
-    make_yaml_file('./data.yaml', yaml_all)
-    make_yaml_file('./validation_key.np', md5_all)
+    make_yaml_file(f'{output_dir}/data.yaml', yaml_all)
+    make_yaml_file(f'{output_dir}/validation_key.np', md5_all)

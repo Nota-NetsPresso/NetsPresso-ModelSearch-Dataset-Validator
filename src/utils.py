@@ -14,6 +14,7 @@ import glob
 from loguru import logger
 import yaml
 import hashlib
+import datetime
 
 
 sys.path.append("app/core/validator")
@@ -526,7 +527,7 @@ def yolo_stat(data_path, yaml_path):
     image_file_types = get_img_file_types()
     image_files = []
     for img_ext in image_file_types:
-        image_files += glob.glob(f"{data_path}/{img_ext}")
+        image_files += glob.glob(f"{data_path}/images/{img_ext}")
     num_images = len(image_files)
     names = data_dict["names"]
 
@@ -558,7 +559,7 @@ def structure_convert(data_dir, format):
     if not format in ["coco", "voc"]:
         raise Exception("not valid format")
 
-    tmp_dir = os.path.join(data_dir, 'tmp')
+    tmp_dir = os.path.join(data_dir, f'tmp_{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
     os.mkdir(tmp_dir)
     images_dir = os.path.join(tmp_dir, 'images')
     os.mkdir(images_dir)
