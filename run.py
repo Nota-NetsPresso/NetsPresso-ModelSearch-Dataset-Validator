@@ -1,5 +1,5 @@
 import argparse
-from src.utils import validate, structure_convert, zip_packing, make_yaml_file, calc_file_hash,  get_object_stat, yolo_stat
+from src.utils import validate, structure_convert, zip_packing, make_yaml_file, calc_file_hash,  make_yaml_content, yolo_stat
 import shutil
 import os
 import yaml
@@ -10,48 +10,71 @@ def main(dir_path, format, task, data_type, yaml_path=None):
 
     if format in ["coco", "voc"]:
         tmp_path, names, obj_stat, num_images = structure_convert(dir_path, format)
-        yaml_path = f"./{data_type}_data.yaml"
-        make_yaml_file(names, yaml_path, num_images, obj_stat)
     else:
-        
         tmp_path = dir_path
         names, obj_stat, num_images = yolo_stat(tmp_path, yaml_path)
-        new_yaml_path = f"./{data_type}_data.yaml"
-        make_yaml_file(names, new_yaml_path, num_images, obj_stat)
-
-
-
-
-    succeed = validate(tmp_path, format, yaml_path, task)
+        
+    yaml_content = make_yaml_content(names, num_images, obj_stat)
+    temp_yaml_path = os.path.join(tmp_path, "temp_yaml.yaml")
+    make_yaml_file(temp_yaml_path, yaml_content)
+    succeed = validate(tmp_path, format, temp_yaml_path, task)
     zip_file_path = f"./{data_type}.zip"
     
     if succeed:
         zip_packing(tmp_path, zip_file_path)
-        with open("./validation_key.np", 'w') as f:
-            f.write(calc_file_hash(zip_file_path))
+        md5_hash = calc_file_hash(zip_file_path)
         if format in ["coco", "voc"]:
           shutil.rmtree(tmp_path)
     else:
         if format in ["coco", "voc"]:
           shutil.rmtree(tmp_path)
-
+    
+    return zip_file_path, yaml_content, md5_hash
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Dataset validator.")
-    parser.add_argument("--dir", type=str, required=True, help="dataset path.")
     parser.add_argument("--format", type=str, required=True, help="dataset format")
     parser.add_argument("--task", type=str, default="detection", help="task")
     parser.add_argument("--yaml_path", type=str, required=False, help="yaml file path")
-    parser.add_argument("--data_type", type=str, required=True, help="train / test / val")
+    parser.add_argument("--train_dir", type=str, required=True, help="train dataset path.")
+    parser.add_argument("--test_dir", type=str, required=False, help="test dataset path.")
+    parser.add_argument("--valid_dir", type=str, required=False, help="validation dataset path.")
     args = parser.parse_args()
 
-    dir_path, format, task, yaml_path, data_type= (
-        args.dir,
+    format, task, yaml_path, train_dir, test_dir, valid_dir= (
         args.format.lower(),
         args.task.lower(),
         args.yaml_path,
-        args.data_type
+        args.train_dir,
+        args.test_dir,
+        args.valid_dir
     )
 
-    main(dir_path, format, task, data_type, yaml_path)
+    if test_dir is None and valid_dir is None:
+        raise Exception("At least one of test_dir or valid_dir should be specified")
+
+    train_zip_path, train_yaml, train_md5 = main(train_dir, format, task, "train", yaml_path) # train
+    if test_dir :
+        test_zip_path, test_yaml, test_md5 = main(test_dir, format, task, "test", yaml_path) # test
+    if valid_dir :
+        valid_zip_path, valid_yaml, valid_md5 = main(valid_dir, format, task, "valid", yaml_path) # valid
+
+    yaml_all = {}
+    yaml_all["nc"] = train_yaml["nc"]
+    yaml_all["names"] = train_yaml["names"]
+    yaml_all["train"] = {"num_images": train_yaml["num_images"], "obj_stat": train_yaml["obj_stat"]}
+    if test_dir :
+        yaml_all["test"] = {"num_images": test_yaml["num_images"], "obj_stat": test_yaml["obj_stat"]}
+    if valid_dir :
+        yaml_all["valid"] = {"num_images": valid_yaml["num_images"], "obj_stat": valid_yaml["obj_stat"]}
+
+    md5_all = {}
+    md5_all["train"] = train_md5
+    if test_dir :
+        md5_all["test"] = test_md5
+    if valid_dir :
+        md5_all["valid"] = valid_md5
+    
+    make_yaml_file('./data.yaml', yaml_all)
+    make_yaml_file('./validation_key.np', md5_all)

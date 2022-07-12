@@ -338,6 +338,7 @@ def get_img_file_types() -> List[str]:
     ]
     return img_file_types
 
+
 def get_annotation_file_types():
     annotation_file_types =[
       "*.xml",
@@ -407,6 +408,7 @@ def validate_classification_task(
         )
     return errors
 
+
 def validate(
     root_path: str,
     data_format: str,
@@ -440,7 +442,6 @@ def validate(
                 "Validation error, please visit 'https://github.com/Nota-NetsPresso/NetsPresso-ModelSearch-Dataset-Validator' and validate dataset."
                 )
         return False
-
 
 
 def get_class_info_coco(annotation_file):
@@ -489,6 +490,7 @@ def get_object_stat_coco(annotation_file):
     print(ret)
     return ret
 
+
 def get_object_stat_voc(annotation_file):
     xml_root = xml_load(annotation_file)
     object_eles = xml_root.findall("object")
@@ -516,7 +518,6 @@ def get_object_stat_yolo(annotation_file, names):
     
     return ret
     
-
 
 def yolo_stat(data_path, yaml_path):
     with open(yaml_path, 'r') as data_yaml:
@@ -599,23 +600,24 @@ def zip_packing(root_path, filename):
             file_path = os.path.join(path, file)
             rel_path = os.path.relpath(file_path, root_path)
             zip_file.write(file_path, rel_path, compress_type=zipfile.ZIP_DEFLATED)
-
     zip_file.close()
 
 
-def make_yaml_file(names, output_path, num_images, obj_stat):
+def make_yaml_file(output_path, content):
+    with open(output_path, 'w') as f:
+        yaml.dump(content, f)
+
+
+def make_yaml_content(names, num_images, obj_stat):
     nc = len(names)
     names = list(names)
-
-    with open(output_path, 'w') as f:
-        yaml.dump({'nc': nc, 'names': names, 'num_images': num_images, 'obj_stat': obj_stat}, f)
+    return {'nc': nc, 'names': names, 'num_images': num_images, 'obj_stat': obj_stat}
 
 
 def calc_file_hash(path):
     f = open(path, 'rb')
     data = f.read()
-    hash = hashlib.md5(data).hexdigest()
-    
+    hash = hashlib.md5(data).hexdigest()   
     return hash
 
 
