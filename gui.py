@@ -1,5 +1,5 @@
 #Import the Tkinter library
-from run import main
+from run import execute 
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
@@ -11,16 +11,46 @@ win= Tk()
 
 
 
-def select_dir():    
+def select_train_dir():    
     input_dir = filedialog.askdirectory()
-    open_dir.set(input_dir)
+    train_dir.set(input_dir)
+
+def select_test_dir():    
+    input_dir = filedialog.askdirectory()
+    test_dir.set(input_dir)
+
+def select_valid_dir():    
+    input_dir = filedialog.askdirectory()
+    valid_dir.set(input_dir)
+
+def select_output_dir():
+    input_dir = filedialog.askdirectory()
+    output_dir.set(input_dir)
 
 def select_yaml():
     input_path = filedialog.askopenfilename()
     yaml_path.set(input_path)
 
 def run():
-    main(open_dir.get(), data_format.get(), task.get(), data_type.get(), yaml_path.get())
+    # execute(format, task, train_dir, test_dir, valid_dir, output_dir, yaml_path)
+    if test_dir.get() == '':
+        test_dir_get = None
+    else:
+        test_dir_get = test_dir.get()
+    if valid_dir.get() == '':
+        valid_dir_get = None
+    else:
+        valid_dir_get = valid_dir.get()
+    if output_dir.get() == '':
+        output_dir_get = None
+    else:
+        output_dir_get = output_dir.get()
+    if yaml_path.get() == '':
+        yaml_path_get = None
+    else:
+        yaml_path_get = yaml_path.get()
+    
+    execute(data_format.get(), task.get(), train_dir.get(), test_dir_get, valid_dir_get, output_dir_get, yaml_path_get)
 
 def yaml_switch():
     if data_format.get() == "yolo":
@@ -31,16 +61,29 @@ def yaml_switch():
 
 
 
-open_dir = StringVar()
+train_dir = StringVar()
+test_dir = StringVar()
+valid_dir = StringVar()
+output_dir = StringVar()
 
 frame_data_path = Frame(win, relief='sunken', bd=2)
 frame_data_path.grid(column=0, row=0)
 frame_data_path.pack()
 ttk.Label(frame_data_path, text="Step 1. Set data directory").pack()
-data_button = ttk.Button(frame_data_path, text="Open", command=select_dir)
-data_button.pack()
-open_dir_label = ttk.Label(frame_data_path, textvariable=open_dir)
-open_dir_label.pack()
+train_data_button = ttk.Button(frame_data_path, text="Open", command=select_train_dir)
+train_data_button.pack()
+train_dir_label = ttk.Label(frame_data_path, textvariable=train_dir)
+train_dir_label.pack()
+
+test_data_button = ttk.Button(frame_data_path, text="Open", command=select_test_dir)
+test_data_button.pack()
+test_dir_label = ttk.Label(frame_data_path, textvariable=test_dir)
+test_dir_label.pack()
+
+valid_data_button = ttk.Button(frame_data_path, text="Open", command=select_valid_dir)
+valid_data_button.pack()
+valid_dir_label = ttk.Label(frame_data_path, textvariable=valid_dir)
+valid_dir_label.pack()
 
 frame_data_format = Frame(win, relief='sunken', bd=2)
 frame_data_format.pack()
@@ -59,19 +102,6 @@ yaml_button.pack()
 yaml_label = ttk.Label(frame_data_format, textvariable=yaml_path)
 yaml_label.pack()
 
-data_type = StringVar(None, "train")
-
-frame_data_type = Frame(win, relief='sunken', bd=2)
-frame_data_type.pack()
-ttk.Label(frame_data_type, text="Step 3. Set data type").pack()
-data_type_r1 = ttk.Radiobutton(frame_data_type, text="train", variable=data_type, value="train")
-data_type_r1.pack()
-data_type_r2 = ttk.Radiobutton(frame_data_type, text="test", variable=data_type, value="test")
-data_type_r2.pack()
-data_type_r3 = ttk.Radiobutton(frame_data_type, text="val", variable=data_type, value="val")
-data_type_r3.pack()
-
-
 frame_task = Frame(win, relief='sunken', bd=2)
 frame_task.pack()
 
@@ -81,6 +111,17 @@ task_r1 = ttk.Radiobutton(frame_task, text="object detection", variable=task, va
 task_r1.pack()
 task_r2 = ttk.Radiobutton(frame_task, text="classification", variable=task, value="classification", state="disabled")
 task_r2.pack()
+
+frame_output_path = Frame(win, relief='sunken', bd=2)
+
+frame_output_path.pack()
+ttk.Label(frame_output_path, text="Step 5. Set output directory").pack()
+output_path_button = ttk.Button(frame_output_path, text="Open", command=select_output_dir)
+output_path_button.pack()
+output_dir_label = ttk.Label(frame_output_path, textvariable=output_dir)
+output_dir_label.pack()
+
+
 
 run_button = ttk.Button(win, text="run", command=run)
 run_button.pack()

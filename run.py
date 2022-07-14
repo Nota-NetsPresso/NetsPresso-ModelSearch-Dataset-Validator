@@ -5,8 +5,6 @@ import os
 import yaml
 
 def main(dir_path, format, task, data_type, yaml_path=None, output_dir=None):
-    if output_dir is None:
-        output_dir = "."
     if format == "yolo" and yaml_path is None:
         raise Exception("yaml_path should be defined for yolo format ")
 
@@ -34,28 +32,10 @@ def main(dir_path, format, task, data_type, yaml_path=None, output_dir=None):
     return zip_file_path, yaml_content, md5_hash
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Dataset validator.")
-    parser.add_argument("--format", type=str, required=True, help="dataset format")
-    parser.add_argument("--task", type=str, default="detection", help="task")
-    parser.add_argument("--yaml_path", type=str, required=False, help="yaml file path")
-    parser.add_argument("--train_dir", type=str, required=True, help="train dataset path.")
-    parser.add_argument("--test_dir", type=str, required=False, help="test dataset path.")
-    parser.add_argument("--valid_dir", type=str, required=False, help="validation dataset path.")
-    parser.add_argument("--output_dir", type=str, required=False, help="output directory")
-    args = parser.parse_args()
-
-    format, task, yaml_path, train_dir, test_dir, valid_dir, output_dir= (
-        args.format.lower(),
-        args.task.lower(),
-        args.yaml_path,
-        args.train_dir,
-        args.test_dir,
-        args.valid_dir,
-        args.output_dir.rstrip('/')
-    )
+def execute(format, task, train_dir, test_dir=None, valid_dir=None, output_dir=None, yaml_path=None):
+    if output_dir is None:
+        output_dir = "."
     os.makedirs(output_dir, exist_ok=True)
-
     if test_dir is None and valid_dir is None:
         raise Exception("At least one of test_dir or valid_dir should be specified")
 
@@ -83,3 +63,29 @@ if __name__ == "__main__":
     
     make_yaml_file(f'{output_dir}/data.yaml', yaml_all)
     make_yaml_file(f'{output_dir}/validation_key.np', md5_all)
+
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Dataset validator.")
+    parser.add_argument("--format", type=str, required=True, help="dataset format")
+    parser.add_argument("--task", type=str, default="detection", help="task")
+    parser.add_argument("--yaml_path", type=str, required=False, help="yaml file path")
+    parser.add_argument("--train_dir", type=str, required=True, help="train dataset path.")
+    parser.add_argument("--test_dir", type=str, required=False, help="test dataset path.")
+    parser.add_argument("--valid_dir", type=str, required=False, help="validation dataset path.")
+    parser.add_argument("--output_dir", type=str, required=False, help="output directory")
+    args = parser.parse_args()
+
+    format, task, yaml_path, train_dir, test_dir, valid_dir, output_dir= (
+        args.format.lower(),
+        args.task.lower(),
+        args.yaml_path,
+        args.train_dir,
+        args.test_dir,
+        args.valid_dir,
+        args.output_dir.rstrip('/')
+    )
+    
+    execute(format, task, train_dir, test_dir, valid_dir, output_dir, yaml_path)
+    
