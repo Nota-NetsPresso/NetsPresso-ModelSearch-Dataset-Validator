@@ -559,7 +559,7 @@ def structure_convert(data_dir, format):
     if not format in ["coco", "voc"]:
         raise Exception("not valid format")
 
-    tmp_dir = os.path.join(data_dir, f'tmp_{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}')
+    tmp_dir = os.path.join(data_dir, f'tmp_{datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S")}')
     os.mkdir(tmp_dir)
     images_dir = os.path.join(tmp_dir, 'images')
     os.mkdir(images_dir)
