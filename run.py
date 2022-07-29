@@ -1,8 +1,9 @@
 import argparse
-from src.utils import validate, structure_convert, zip_packing, make_yaml_file, calc_file_hash,  make_yaml_content, yolo_stat
+from src.utils import validate, structure_convert, zip_packing, make_yaml_file, calc_file_hash,  make_yaml_content, yolo_stat, log_n_print
 import shutil
 import os
 import yaml
+
 
 def main(dir_path, format, task, data_type, yaml_path=None, output_dir=None):
     if format == "yolo" and yaml_path is None:
@@ -17,7 +18,7 @@ def main(dir_path, format, task, data_type, yaml_path=None, output_dir=None):
     yaml_content = make_yaml_content(names, num_images, obj_stat)
     temp_yaml_path = os.path.join(tmp_path, "temp_yaml.yaml")
     make_yaml_file(temp_yaml_path, yaml_content)
-    succeed = validate(tmp_path, format, temp_yaml_path, task)
+    succeed = validate(tmp_path, format, temp_yaml_path, output_dir, task)
     zip_file_path = f"{output_dir}/{data_type}.zip"
     
     if succeed:
@@ -25,13 +26,13 @@ def main(dir_path, format, task, data_type, yaml_path=None, output_dir=None):
         md5_hash = calc_file_hash(zip_file_path)
         if format in ["coco", "voc"]:
           shutil.rmtree(tmp_path)
+        return zip_file_path, yaml_content, md5_hash, succeed
     else:
         if format in ["coco", "voc"]:
           shutil.rmtree(tmp_path)
+        return zip_file_path, yaml_content, None, succeed
     
-    return zip_file_path, yaml_content, md5_hash
-
-
+    
 def execute(format, task, train_dir, test_dir=None, valid_dir=None, output_dir=None, yaml_path=None):
     if output_dir is None:
         output_dir = "."
@@ -39,11 +40,15 @@ def execute(format, task, train_dir, test_dir=None, valid_dir=None, output_dir=N
     if test_dir is None and valid_dir is None:
         raise Exception("At least one of test_dir or valid_dir should be specified")
 
-    train_zip_path, train_yaml, train_md5 = main(train_dir, format, task, "train", yaml_path, output_dir) # train
+    succeed_list = []
+    train_zip_path, train_yaml, train_md5, succeed = main(train_dir, format, task, "train", yaml_path, output_dir) # train
+    succeed_list.append(succeed)
     if test_dir :
-        test_zip_path, test_yaml, test_md5 = main(test_dir, format, task, "test", yaml_path, output_dir) # test
+        test_zip_path, test_yaml, test_md5, succeed = main(test_dir, format, task, "test", yaml_path, output_dir) # test
+        succeed_list.append(succeed)
     if valid_dir :
-        valid_zip_path, valid_yaml, valid_md5 = main(valid_dir, format, task, "valid", yaml_path, output_dir) # valid
+        valid_zip_path, valid_yaml, valid_md5, succeed = main(valid_dir, format, task, "valid", yaml_path, output_dir) # valid
+        succeed_list.append(succeed)
 
     yaml_all = {}
     yaml_all["nc"] = train_yaml["nc"]
@@ -63,6 +68,11 @@ def execute(format, task, train_dir, test_dir=None, valid_dir=None, output_dir=N
     
     make_yaml_file(f'{output_dir}/data.yaml', yaml_all)
     make_yaml_file(f'{output_dir}/validation_key.np', md5_all)
+
+    if all(succeed_list):
+        log_n_print("Validation completed! Now try your dataset on NetsPresso!")
+    else:
+        log_n_print("Validation error, please check 'validation_result.txt'.")
 
 
 

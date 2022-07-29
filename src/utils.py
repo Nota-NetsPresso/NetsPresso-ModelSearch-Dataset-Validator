@@ -349,8 +349,8 @@ def get_annotation_file_types():
     return annotation_file_types
 
 
-def write_error_txt(errors: List[str]):
-    f = open("validation_result.txt", "w")
+def write_error_txt(errors: List[str], output_dir):
+    f = open(os.path.join(output_dir,"validation_result.txt"), "a")
     for e in errors:
         f.write(e + "\n")
     f.close()
@@ -414,6 +414,7 @@ def validate(
     root_path: str,
     data_format: str,
     yaml_path: str,
+    output_path: str,
     task: str="detection",
     fix=False,
     local=False # True for local run, False for BE run.
@@ -426,22 +427,15 @@ def validate(
     log_n_print(f"yaml path: {yaml_path}")
     log_n_print(f"autofix: {fix}")
     log_n_print("=========================")
-    
+    print(task, "task")
     if task == "object_detection":
         errors = validate_detection_task(root_path, data_format, yaml_path)
     elif task == "classification":
         errors = validate_classification_task(root_path, data_format, yaml_path)
     if len(errors) == 0:
-        log_n_print("Validation completed! Now try your dataset on NetsPresso!")
         return True
     else:
-        write_error_txt(errors)
-        if local:
-            log_n_print("Validation error, please check 'validation_result.txt'.")
-        else:
-            log_n_print(
-                "Validation error, please visit 'https://github.com/Nota-NetsPresso/NetsPresso-ModelSearch-Dataset-Validator' and validate dataset."
-                )
+        write_error_txt(errors, output_path)
         return False
 
 
@@ -605,7 +599,7 @@ def zip_packing(root_path, filename):
 
 
 def make_yaml_file(output_path, content):
-    with open(output_path, 'w') as f:
+    with open(output_path, 'a') as f:
         yaml.dump(content, f)
 
 

@@ -35,6 +35,10 @@ def select_yaml():
 
 def run():
     # execute(format, task, train_dir, test_dir, valid_dir, output_dir, yaml_path)
+    input_dir = filedialog.askdirectory()
+    output_dir.set(input_dir)
+    progress.set("in progress")
+
     if test_dir.get() == '':
         test_dir_get = None
     else:
@@ -53,7 +57,8 @@ def run():
         yaml_path_get = yaml_path.get()
     
     print(train_dir.get())
-    execute(data_format.get(), task.get(), train_dir.get(), test_dir_get, valid_dir_get, output_dir_get, yaml_path_get)
+    execute(data_format.get(), "object_detection", train_dir.get(), test_dir_get, valid_dir_get, output_dir_get, yaml_path_get)
+    progress.set("Done")
 
 
 def yaml_switch():
@@ -72,6 +77,7 @@ train_dir = StringVar()
 test_dir = StringVar()
 valid_dir = StringVar()
 output_dir = StringVar()
+progress = StringVar()
 
 frame_data_path = Frame(win, relief='ridge', bd=2, height=200, width=480)
 frame_data_path.grid()
@@ -82,21 +88,21 @@ ttk.Label(frame_data_path, text="Train Dataset Path").grid(column=0, row=1, stic
 train_dir_label = ttk.Entry(frame_data_path, textvariable=train_dir)
 train_dir_label.grid(column=1, row=1)
 
-train_data_button = ttk.Button(frame_data_path, text="Open", command=select_train_dir)
+train_data_button = ttk.Button(frame_data_path, text="Select", command=select_train_dir)
 train_data_button.grid(column=2, row=1)
 
 
 ttk.Label(frame_data_path, text="Test Dataset Path").grid(column=0, row=2, sticky='w')
 test_dir_label = ttk.Entry(frame_data_path, textvariable=test_dir)
 test_dir_label.grid(column=1, row=2)
-test_data_button = ttk.Button(frame_data_path, text="Open", command=select_test_dir)
+test_data_button = ttk.Button(frame_data_path, text="Select", command=select_test_dir)
 test_data_button.grid(column=2, row=2)
 
 
 ttk.Label(frame_data_path, text="Validation Dataset Path").grid(column=0, row=3, sticky='w')
 valid_dir_label = ttk.Entry(frame_data_path, textvariable=valid_dir)
 valid_dir_label.grid(column=1, row=3)
-valid_data_button = ttk.Button(frame_data_path, text="Open", command=select_valid_dir)
+valid_data_button = ttk.Button(frame_data_path, text="Select", command=select_valid_dir)
 valid_data_button.grid(column=2, row=3)
 ttk.Separator(frame_data_path, orient="horizontal").grid(column=0, row=4, columnspan=3, sticky='nesw')
 
@@ -113,26 +119,20 @@ yaml_path = StringVar()
 ttk.Label(frame_data_path, text="Data Yaml Path").grid(column=0, row=9, sticky='w')
 yaml_label = ttk.Entry(frame_data_path, textvariable=yaml_path)
 yaml_label.grid(column=1, row=9)
-yaml_button = ttk.Button(frame_data_path, text="Open", command=select_yaml)
+yaml_button = ttk.Button(frame_data_path, text="Select", command=select_yaml)
 yaml_button.grid(column=2, row=9)
 
-ttk.Separator(frame_data_path, orient="horizontal").grid(column=0, row=10, columnspan=3, sticky='nesw')
-ttk.Label(frame_data_path, text="Task", font=("Arial", 11)).grid(column=0, row=10, sticky='w')
-task = StringVar(None, "object_detection")
-task_r1 = ttk.Radiobutton(frame_data_path, text="object detection", variable=task, value="object_detection")
-task_r1.grid(column=0, row=12,sticky='w')
-task_r2 = ttk.Radiobutton(frame_data_path, text="classification", variable=task, value="classification", state="disabled")
-task_r2.grid(column=0, row=13, sticky='w')
-
 ttk.Separator(frame_data_path, orient="horizontal").grid(column=0, row=14, columnspan=3, sticky='nesw')
-ttk.Label(frame_data_path, text="Output Path").grid(column=0, row=15, sticky='w')
-output_dir_label = ttk.Entry(frame_data_path, textvariable=output_dir)
-output_dir_label.grid(column=1, row=15,sticky='w')
-output_path_button = ttk.Button(frame_data_path, text="Open", command=select_output_dir)
-output_path_button.grid(column=2, row=15, sticky='w')
+#ttk.Label(frame_data_path, text="Output Path").grid(column=0, row=15, sticky='w')
+#output_dir_label = ttk.Entry(frame_data_path, textvariable=output_dir)
+#output_dir_label.grid(column=1, row=15,sticky='w')
+#output_path_button = ttk.Button(frame_data_path, text="Select", command=select_output_dir)
+#output_path_button.grid(column=2, row=15, sticky='w')
 
+
+ttk.Label(frame_data_path, textvariable=progress).grid(column=0, row=16, sticky='w')
 run_button = ttk.Button(frame_data_path, text="run", command=run)
-run_button.grid(column=1, row=16, sticky='nesw')
+run_button.grid(column=1, row=16)
 close_button = ttk.Button(frame_data_path, text="cancel", command=close)
 close_button.grid(column=2, row=16, sticky='nesw')
 win.mainloop()
